@@ -4,6 +4,7 @@ import com.badboys.unbound_auth.api.service.AuthService;
 import com.badboys.unbound_auth.api.service.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,10 @@ public class AuthController {
     }
 
     @Operation(summary = "회원가입", description = "Firebase 토큰을 기반으로 사용자 회원가입")
-    @ApiResponse(responseCode = "201", description = "회원가입 성공")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "회원가입 성공"),
+            @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰")
+    })
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestHeader("Authorization") String authorizationHeader) {
         try {
@@ -45,7 +49,10 @@ public class AuthController {
     }
 
     @Operation(summary = "로그인", description = "Firebase 토큰을 기반으로 사용자 로그인")
-    @ApiResponse(responseCode = "200", description = "로그인 성공")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그인 성공"),
+            @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰")
+    })
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestHeader("Authorization") String authorizationHeader) {
         try {
@@ -61,6 +68,12 @@ public class AuthController {
         }
     }
 
+    @Operation(summary = "재발급", description = "refresh 토큰 기반 access 토큰 재발급")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "재발급 성공"),
+            @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰"),
+            @ApiResponse(responseCode = "500", description = "access 토큰 발급 실패")
+    })
     @PostMapping("/refresh")
     public ResponseEntity<String> refreshAccessToken(@RequestHeader("Refresh-Token") String refreshToken) {
         try {
