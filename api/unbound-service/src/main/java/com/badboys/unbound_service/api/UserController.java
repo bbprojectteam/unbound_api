@@ -1,12 +1,12 @@
 package com.badboys.unbound_service.api;
 
-import com.badboys.unbound_service.api.repository.RegionRepository;
 import com.badboys.unbound_service.api.service.UserService;
-import com.badboys.unbound_service.model.UserInfo;
+import com.badboys.unbound_service.model.ResponseUserInfoDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +22,14 @@ public class UserController {
     }
 
     @Operation(summary = "유저정보 조회", description = "내 정보 불러오기")
-    @ApiResponse(responseCode = "200", description = "조회 성공")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "204", description = "유저 정보 없음", content = @Content)
+    })
     @GetMapping("/info")
-    public ResponseEntity<String> getUserInfo(@RequestHeader("X-User-Id") String userId) {
+    public ResponseEntity<ResponseUserInfoDto> getUserInfo(@RequestHeader("X-User-Id") String userId) {
 
-//        UserInfo userInfo = userService.getUserInfo(Long.valueOf(userId));
-        return ResponseEntity.status(HttpStatus.OK)
-                .body("회원가입 성공");
+        ResponseUserInfoDto responseUserInfoDto = userService.getUserInfo(Long.valueOf(userId));
+        return ResponseEntity.ok(responseUserInfoDto);
     }
 }
