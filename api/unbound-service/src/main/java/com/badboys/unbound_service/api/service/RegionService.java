@@ -47,6 +47,29 @@ public class RegionService {
             }
         }
     }
+
+    @Cacheable(value = "regionParentTree", key = "#childId")
+    public List<RegionEntity> getAllParentsWithCache(Long childId) {
+        return getAllParents(childId); // 위에서 작성한 메서드를 호출
+    }
+
+    public List<RegionEntity> getAllParents(Long childId) {
+        RegionEntity child = regionRepository.findById(childId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 지역을 찾을 수 없습니다."));
+
+        List<RegionEntity> parents = new ArrayList<>();
+        findAllParents(child, parents);
+        return parents;
+    }
+
+    private void findAllParents(RegionEntity child, List<RegionEntity> parents) {
+        if (child.getParent() != null) {
+            parents.add(child.getParent());
+            findAllParents(child.getParent(), parents);
+        }
+    }
+
+
 }
 
 

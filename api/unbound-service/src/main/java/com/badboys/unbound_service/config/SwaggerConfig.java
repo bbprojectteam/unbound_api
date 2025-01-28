@@ -10,7 +10,7 @@ public class SwaggerConfig {
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
                 .group("unbound-public")
-                .pathsToMatch("/auth/**") // API 경로 지정
+                .pathsToMatch("/**") // API 경로 지정
                 .build();
     }
 }

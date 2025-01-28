@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -41,5 +44,9 @@ public class UserEntity {
     private String profileImage;
 
     @Column(name = "mmr")
-    private Long mmr;
+    private int mmr;
+
+    @ManyToOne(fetch = FetchType.LAZY) // 다대일 관계
+    @JoinColumn(name = "region_id", nullable = false) // 외래 키 설정
+    private RegionEntity region;
 }

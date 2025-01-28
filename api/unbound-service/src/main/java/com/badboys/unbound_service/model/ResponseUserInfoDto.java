@@ -1,22 +1,19 @@
 package com.badboys.unbound_service.model;
 
-import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UserInfo {
+public class ResponseUserInfoDto {
 
     private String username;
 
     private char gender;
 
-    @Column(name = "profileImage")
     private String profileImage;
 
-    @Column(name = "mmr")
     private Long mmr;
 
-
+    private String regionNm;
 }
