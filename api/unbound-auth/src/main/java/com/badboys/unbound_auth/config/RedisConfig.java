@@ -12,8 +12,9 @@ public class RedisConfig {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        // Redis 연결 설정
-        return new LettuceConnectionFactory("13.125.19.17", 6379);
+        LettuceConnectionFactory factory = new LettuceConnectionFactory("3.34.212.4", 6379);
+        factory.afterPropertiesSet();
+        return factory;
     }
 
     @Bean

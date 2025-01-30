@@ -29,9 +29,7 @@ public class UserService {
     }
 
     public ResponseUserInfoDto getUserInfo(Long userId) {
-        UserEntity userEntity = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NO_CONTENT, "User not found"));
-
+        UserEntity userEntity = getUserEntity(userId);
         ResponseUserInfoDto responseUserInfoDto = modelMapper.map(userEntity, ResponseUserInfoDto.class);
         RegionEntity regionEntity = userEntity.getRegion();
         Long regionId = regionEntity.getId();
@@ -42,6 +40,12 @@ public class UserService {
         }
         responseUserInfoDto.setRegionNm(regionNm.toString());
         return responseUserInfoDto;
+    }
+
+    public UserEntity getUserEntity(Long userId) {
+        UserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NO_CONTENT, "User not found"));
+        return userEntity;
     }
 
 }
