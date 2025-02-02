@@ -66,27 +66,22 @@ public class MatchConsumerService {
 
         long currentTime = System.currentTimeMillis();
 
-        Map<String, List<String>> userRegionMap = redisTemplate.opsForHash().entries("user_regions").entrySet().stream()
+        Map<String, List<String>> userRegionMap = redisTemplate.opsForHash().entries("user_regions")
+                .entrySet().stream()
                 .collect(Collectors.toMap(
-                        entry -> (String) entry.getKey(),
-                        entry -> {
-                            try {
-                                return objectMapper.readValue((String) entry.getValue(), new TypeReference<List<String>>() {});
-                            } catch (JsonProcessingException e) {
-                                return Collections.emptyList();
-                            }
-                        }
+                        entry -> entry.getKey().toString(),
+                        entry -> (List<String>) entry.getValue()
                 ));
         Map<Object, Double> userExpireMap = new HashMap<>();
-        Set<ZSetOperations.TypedTuple<Object>> expireEntries = redisTemplate.opsForZSet().rangeWithScores("match_expire_queue", currentTime, Long.MAX_VALUE);
+        Set<ZSetOperations.TypedTuple<Object>> expireEntries = redisTemplate.opsForZSet().rangeWithScores("match_expire_queue", 0, -1);
         if (expireEntries != null) {
             for (ZSetOperations.TypedTuple<Object> entry : expireEntries) {
-                userExpireMap.put(entry.getValue(), entry.getScore());
+                userExpireMap.put(entry.getValue().toString(), entry.getScore());
             }
         }
 
         for (ZSetOperations.TypedTuple<Object> entry : queuedUsers) {
-            String userId = (String) entry.getValue();
+            String userId = entry.getValue().toString();
             Double userMmr = entry.getScore();
             Double userExpireTime = userExpireMap.get(userId);
             if (userExpireTime == null || userExpireTime < currentTime) continue;
@@ -118,10 +113,10 @@ public class MatchConsumerService {
             Double expireTime = userExpireMap.get(userId);
             if (expireTime == null || expireTime < currentTime) continue;
 
-            List<String> targetUserRegions = userRegionMap.getOrDefault((String) userId, Collections.emptyList());;
+            List<String> targetUserRegions = userRegionMap.getOrDefault(userId.toString(), Collections.emptyList());;
 
             if (!Collections.disjoint(currentUserRegions, targetUserRegions)) {
-                validUsers.add((String) userId);
+                validUsers.add(userId.toString());
             }
         }
         return validUsers;

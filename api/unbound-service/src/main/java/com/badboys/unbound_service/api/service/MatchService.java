@@ -1,20 +1,15 @@
 package com.badboys.unbound_service.api.service;
 
-import com.badboys.unbound_service.entity.RegionEntity;
 import com.badboys.unbound_service.entity.UserEntity;
-import com.badboys.unbound_service.model.Region;
 import com.badboys.unbound_service.model.RequestMatchDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 @Service
 public class MatchService {
@@ -45,7 +40,7 @@ public class MatchService {
             List<Long> regionIdList = regionService.getAllChildrenId(limitRegionId);
             int mmr = userEntity.getMmr();
 
-            RequestMatchDto requestMatchDto = new RequestMatchDto(userId, mmr, regionIdList);
+            RequestMatchDto requestMatchDto = new RequestMatchDto(userId.toString(), mmr, regionIdList);
 
             CompletableFuture<SendResult<String, Object>> future =
                     kafkaTemplate.send("match-request-topic", requestMatchDto);
