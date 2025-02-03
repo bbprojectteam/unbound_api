@@ -7,13 +7,13 @@ import java.util.List;
 @Data
 public class RequestMatchDto {
 
-    private Long userId;
+    private String userId;
 
     private int mmr;
 
     private List<Long> regionIdList;
 
-    public RequestMatchDto(Long userId, int mmr, List<Long> regionIdList) {
+    public RequestMatchDto(String userId, int mmr, List<Long> regionIdList) {
         this.userId = userId;
         this.mmr = mmr;
         this.regionIdList = regionIdList;
