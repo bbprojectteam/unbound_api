@@ -29,6 +29,6 @@ public class ChatRoomUserEntity {
     private UserEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "chat_room_id", nullable = false)
     private ChatRoomEntity chatRoom;
 }

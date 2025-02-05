@@ -27,7 +27,7 @@ public class KafkaConsumerConfig {
         // 🔥 JSON 직렬화 설정을 configProps에서만 지정 (Setter 사용 X)
         configProps.put("spring.json.trusted.packages", "*");
         configProps.put("spring.json.use.type.headers", "false");
-        configProps.put("spring.json.value.default.type", "com.badboys.unbound_match.model.RequestMatchDto");
+        configProps.put("spring.json.value.default.type", "com.badboys.unbound_chat.api.model.RequestCreateChatRoomDto");
 
         return new DefaultKafkaConsumerFactory<>(configProps);
     }
