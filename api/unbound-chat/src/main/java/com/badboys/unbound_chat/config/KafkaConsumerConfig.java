@@ -1,6 +1,6 @@
 package com.badboys.unbound_chat.config;
 
-import com.badboys.unbound_match.model.RequestMatchDto;
+import com.badboys.unbound_chat.api.model.RequestCreateChatRoomDto;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +15,7 @@ import java.util.Map;
 public class KafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, RequestMatchDto> consumerFactory() {
+    public ConsumerFactory<String, RequestCreateChatRoomDto> consumerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 "15.165.178.17:10000,15.165.178.17:10001,15.165.178.17:10002");
@@ -33,8 +33,8 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, RequestMatchDto> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, RequestMatchDto> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, RequestCreateChatRoomDto> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, RequestCreateChatRoomDto> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
