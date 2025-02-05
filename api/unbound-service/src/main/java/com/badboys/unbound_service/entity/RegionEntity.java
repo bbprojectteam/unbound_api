@@ -26,13 +26,13 @@ public class RegionEntity {
     @Column(nullable = false)
     private int level; // 계층 정보
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private RegionEntity parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
-    private List<RegionEntity> children = new ArrayList<>();
+    private List<RegionEntity> childList = new ArrayList<>();
 
     @OneToMany(mappedBy = "region", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserEntity> users = new ArrayList<>(); 
+    private List<UserEntity> userList = new ArrayList<>();
 }

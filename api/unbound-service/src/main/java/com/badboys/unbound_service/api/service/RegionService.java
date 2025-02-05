@@ -2,8 +2,6 @@ package com.badboys.unbound_service.api.service;
 
 import com.badboys.unbound_service.api.repository.RegionRepository;
 import com.badboys.unbound_service.entity.RegionEntity;
-import com.badboys.unbound_service.model.Region;
-import com.badboys.unbound_service.model.ResponseUserInfoDto;
 import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +47,9 @@ public class RegionService {
     }
 
     private void findAllChildren(RegionEntity parent, List<Long> childrenIdList) {
-        if (parent == null || parent.getChildren() == null) return;
+        if (parent == null || parent.getChildList() == null) return;
 
-        for (RegionEntity child : parent.getChildren()) {
+        for (RegionEntity child : parent.getChildList()) {
             childrenIdList.add(child.getId());
             findAllChildren(child, childrenIdList);
         }
