@@ -5,6 +5,7 @@ import com.badboys.unbound_auth.api.service.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -43,6 +45,7 @@ public class AuthController {
                     .body("회원가입 성공");
 
         } catch (Exception e) {
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("유효하지 않은 Firebase 토큰입니다.");
         }
@@ -68,6 +71,7 @@ public class AuthController {
                     .body("미가입 사용자 입니다");
         }
         catch (Exception e) {
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("유효하지 않은 Firebase 토큰입니다.");
         }
@@ -95,6 +99,7 @@ public class AuthController {
 
             return ResponseEntity.ok(newAccessToken);
         } catch (Exception e) {
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Access Token 재발급 실패: " + e.getMessage());
         }
