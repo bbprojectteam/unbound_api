@@ -51,6 +51,7 @@ public class AuthController {
     @Operation(summary = "로그인", description = "Firebase 토큰을 기반으로 사용자 로그인")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "로그인 성공"),
+            @ApiResponse(responseCode = "204", description = "미가입 사용자"),
             @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰")
     })
     @PostMapping("/login")
@@ -62,7 +63,11 @@ public class AuthController {
                     .headers(responseHeader)
                     .body("로그인 성공");
 
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body("미가입 사용자 입니다");
+        }
+        catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("유효하지 않은 Firebase 토큰입니다.");
         }
