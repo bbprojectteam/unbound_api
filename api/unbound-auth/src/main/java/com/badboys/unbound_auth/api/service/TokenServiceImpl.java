@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseToken;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +18,15 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class TokenServiceImpl implements TokenService{
 
-    private static final String SECRET_KEY = "your-secret-key"; // JWT 서명용 Secret Key
+    private final String secretKey; // JWT 서명용 Secret Key
     private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 30; // 30분
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7일
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    public TokenServiceImpl(RedisTemplate<String, Object> redisTemplate) {
+    public TokenServiceImpl(RedisTemplate<String, Object> redisTemplate, @Value("${jwt.secret}") String secretKey) {
         this.redisTemplate = redisTemplate;
+        this.secretKey = secretKey;
     }
 
     @Override
@@ -37,7 +39,7 @@ public class TokenServiceImpl implements TokenService{
                     .setId(UUID.randomUUID().toString())
                     .setIssuedAt(new Date())
                     .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
-                    .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                    .signWith(SignatureAlgorithm.HS256, secretKey)
                     .compact();
         }
         else if (type.equals("refresh")) {
@@ -46,7 +48,7 @@ public class TokenServiceImpl implements TokenService{
                     .setId(UUID.randomUUID().toString())
                     .setIssuedAt(new Date())
                     .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
-                    .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                    .signWith(SignatureAlgorithm.HS256, secretKey)
                     .compact();
         }
 

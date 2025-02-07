@@ -19,6 +19,7 @@ public class FirebaseConfig {
         // ClassPathResource로 리소스 파일 접근
         InputStream serviceAccount = new ClassPathResource("firebase-service-account.json").getInputStream();
 
+
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                 .build();
