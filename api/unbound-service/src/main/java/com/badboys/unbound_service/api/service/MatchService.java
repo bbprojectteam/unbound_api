@@ -3,7 +3,6 @@ package com.badboys.unbound_service.api.service;
 import com.badboys.unbound_service.entity.UserEntity;
 import com.badboys.unbound_service.model.RequestMatchDto;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -19,15 +18,13 @@ import java.util.concurrent.CompletableFuture;
 public class MatchService {
 
     private final UserService userService;
-    private final ModelMapper modelMapper;
     private final RegionService regionService;
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    public MatchService(UserService userService, ModelMapper modelMapper, RegionService regionService, KafkaTemplate<String, Object> kafkaTemplate, RedisTemplate<String, Object> redisTemplate) {
+    public MatchService(UserService userService, RegionService regionService, KafkaTemplate<String, Object> kafkaTemplate, RedisTemplate<String, Object> redisTemplate) {
         this.userService = userService;
-        this.modelMapper = modelMapper;
         this.regionService = regionService;
         this.kafkaTemplate = kafkaTemplate;
         this.redisTemplate = redisTemplate;
@@ -47,7 +44,7 @@ public class MatchService {
         return result;
     }
 
-    public boolean getMatchStart(Long userId, Long limitRegionId) {
+    public boolean startMatch(Long userId, Long limitRegionId) {
         try {
             UserEntity userEntity = userService.getUserEntity(userId);
             if (userEntity == null) {
@@ -77,7 +74,7 @@ public class MatchService {
         }
     }
 
-    public void getMatchCancle(String userId) {
+    public void cancelMatch(String userId) {
         try {
             if (isMatchable(userId)) return;
             redisTemplate.executePipelined((RedisCallback<Object>) connection -> {

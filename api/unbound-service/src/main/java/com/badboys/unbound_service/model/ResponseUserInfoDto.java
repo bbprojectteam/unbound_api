@@ -1,10 +1,11 @@
 package com.badboys.unbound_service.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ResponseUserInfoDto {
 
     private String username;

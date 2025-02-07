@@ -27,7 +27,7 @@ public class RegionEntity {
     private int level; // 계층 정보
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
+    @JoinColumn(name = "parentId")
     private RegionEntity parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)

@@ -33,7 +33,7 @@ public class MatchController {
             boolean result = matchService.isMatchable(userId);
             return ResponseEntity.ok(Map.of("result", result));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("레디스 조회 에러");
+            return ResponseEntity.status(500).body(Map.of("message", "레디스 조회 에러"));
         }
     }
 
@@ -43,13 +43,13 @@ public class MatchController {
             @ApiResponse(responseCode = "500", description = "매칭 요청 전송 실패")
     })
     @PostMapping("/start")
-    public ResponseEntity<?> getMatchStart(@RequestHeader("X-User-Id") String userId, @RequestParam Long limitRegionId) {
+    public ResponseEntity<?> matchStart(@RequestHeader("X-User-Id") String userId, @RequestParam Long limitRegionId) {
 
-        boolean isSuccess = matchService.getMatchStart(Long.valueOf(userId), limitRegionId);
+        boolean isSuccess = matchService.startMatch(Long.valueOf(userId), limitRegionId);
         if (isSuccess) {
-            return ResponseEntity.ok("매칭 요청 전송 성공");
+            return ResponseEntity.ok(Map.of("message", "매칭 요청 전송 성공"));
         } else {
-            return ResponseEntity.status(500).body("매칭 요청 전송 실패");
+            return ResponseEntity.status(500).body(Map.of("message", "매칭 요청 전송 실패"));
         }
     }
 
@@ -59,13 +59,13 @@ public class MatchController {
             @ApiResponse(responseCode = "500", description = "레디스 조회 에러")
     })
     @GetMapping("/cancle")
-    public ResponseEntity<?> getMatchCancle(@RequestHeader("X-User-Id") String userId) {
+    public ResponseEntity<?> matchCancle(@RequestHeader("X-User-Id") String userId) {
 
         try {
-            matchService.getMatchCancle(userId);
+            matchService.cancelMatch(userId);
             return ResponseEntity.ok("매칭 취소 성공");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("레디스 조회 에러");
+            return ResponseEntity.status(500).body(Map.of("message", "레디스 조회 에러"));
         }
     }
 }

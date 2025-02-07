@@ -3,7 +3,9 @@ package com.badboys.unbound_service.api.service;
 import com.badboys.unbound_service.api.repository.UserRepository;
 import com.badboys.unbound_service.entity.RegionEntity;
 import com.badboys.unbound_service.entity.UserEntity;
+import com.badboys.unbound_service.model.RequestUpdateUserDto;
 import com.badboys.unbound_service.model.ResponseUserInfoDto;
+import org.apache.catalina.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,4 +50,18 @@ public class UserService {
         return userEntity;
     }
 
+    public void updateUser(Long userId, RequestUpdateUserDto requestUpdateUserDto) throws IllegalArgumentException{
+        UserEntity userEntity = getUserEntity(userId);
+        RegionEntity regionEntity = null;
+        if (requestUpdateUserDto.getRegionId() != null) {
+            regionEntity = regionService.getRegion(requestUpdateUserDto.getRegionId());
+        }
+        userEntity.updateUser(
+                requestUpdateUserDto.getUsername(),
+                requestUpdateUserDto.getBirth(),
+                requestUpdateUserDto.getGender(),
+                regionEntity
+        );
+        userRepository.save(userEntity);
+    }
 }

@@ -2,37 +2,44 @@ package com.badboys.unbound_service.api.service;
 
 import com.badboys.unbound_service.api.repository.RegionRepository;
 import com.badboys.unbound_service.entity.RegionEntity;
+import com.badboys.unbound_service.model.Region;
 import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class RegionService {
 
     private final RegionRepository regionRepository;
-    
+    private final ApplicationContext applicationContext;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public RegionService(RegionRepository regionRepository, ModelMapper modelMapper) {
+    public RegionService(RegionRepository regionRepository, ApplicationContext applicationContext, ModelMapper modelMapper) {
         this.regionRepository = regionRepository;
+        this.applicationContext = applicationContext;
         this.modelMapper = modelMapper;
     }
 
-    @PostConstruct
-    public void preloadCache() {
-        getAllRegions(); // 모든 지역 데이터 캐시에 로드
-    }
-
     @Cacheable(value = "regions")
-    public List<RegionEntity> getAllRegions() {
+    public List<Region> getAllRegions() {
         List<RegionEntity> regions = regionRepository.findAll();
-        return regions;
+        List<Region> allRegionList = regions.stream()
+                .map(entity -> {
+                    Region region = modelMapper.map(entity, Region.class);
+                    region.setParentId(entity.getParent() != null ? entity.getParent().getId() : null);
+                    return region;
+                })
+                .collect(Collectors.toList());
+        return allRegionList;
     }
 
     @Cacheable(value = "regionTree", key = "#parentId")
@@ -74,6 +81,11 @@ public class RegionService {
             parents.add(child.getParent());
             findAllParents(child.getParent(), parents);
         }
+    }
+
+    public RegionEntity getRegion(Long regionId) {
+        return regionRepository.findById(regionId)
+                .orElseThrow(() -> new IllegalArgumentException("Region not found with ID: " + regionId));
     }
 
 

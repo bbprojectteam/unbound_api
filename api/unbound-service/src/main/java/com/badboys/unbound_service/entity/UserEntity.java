@@ -47,6 +47,21 @@ public class UserEntity {
     private int mmr;
 
     @ManyToOne(fetch = FetchType.LAZY) // 다대일 관계
-    @JoinColumn(name = "region_id", nullable = false) // 외래 키 설정
+    @JoinColumn(name = "regionId") // 외래 키 설정
     private RegionEntity region;
+
+    public void updateUser(String username, String birth, char gender, RegionEntity region) {
+        this.username = (username != null) ? username : this.username;
+        this.birth = (birth != null) ? birth : this.birth;
+        this.gender = (gender != 0) ? gender : this.gender;
+        this.region = (region != null) ? region : this.region;
+    }
+
+    public void updateMmr(int newMmr) {
+        this.mmr = newMmr;
+    }
+
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
 }

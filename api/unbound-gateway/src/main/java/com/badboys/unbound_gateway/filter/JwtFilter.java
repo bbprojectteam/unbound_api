@@ -29,11 +29,11 @@ public class JwtFilter extends AbstractGatewayFilterFactory<JwtFilter.Config> {
 
     private final WebClient webClient;
 
-    public JwtFilter() {
+    public JwtFilter(WebClient.Builder webClientBuilder) {
         super(Config.class);
-        this.webClient = WebClient.builder()
+        this.webClient = webClientBuilder
                 .clientConnector(new ReactorClientHttpConnector())
-                .baseUrl("http://auth-server-url") // 인증 서버 URL로 변경하세요
+                .baseUrl("lb://unbound-auth")
                 .build();
     }
 
@@ -54,7 +54,7 @@ public class JwtFilter extends AbstractGatewayFilterFactory<JwtFilter.Config> {
             try {
                 // JWT 서명 및 만료 검증
                 Claims claims = Jwts.parserBuilder()
-                        .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
+                        .setSigningKey(secretKey)
                         .build()
                         .parseClaimsJws(token)
                         .getBody();
@@ -93,7 +93,7 @@ public class JwtFilter extends AbstractGatewayFilterFactory<JwtFilter.Config> {
         Claims refreshTokenClaims;
         try {
             refreshTokenClaims = Jwts.parserBuilder()
-                    .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8)) // 시크릿 키 사용
+                    .setSigningKey(secretKey) // 시크릿 키 사용
                     .build()
                     .parseClaimsJws(refreshToken)
                     .getBody();
@@ -109,18 +109,21 @@ public class JwtFilter extends AbstractGatewayFilterFactory<JwtFilter.Config> {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
+        log.info("Sending Refresh Token request to Auth Server: {}", webClient.mutate().build().toString());
 
         return webClient.post()
                 .uri("/auth/refresh") // Refresh Token 검증 엔드포인트
                 .header("Refresh-Token", refreshToken)
                 .retrieve()
                 .bodyToMono(String.class) // 새 ACCESS_TOKEN을 받는다고 가정
+                .doOnSuccess(response -> log.info("Response from Auth Server: {}", response))
+                .doOnError(error -> log.error("Error calling Auth Server: {}", error.getMessage()))
                 .flatMap(newAccessToken -> {
                     // 새 ACCESS_TOKEN 검증 및 USERID 추출
                     Claims claims;
                     try {
                         claims = Jwts.parserBuilder()
-                                .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
+                                .setSigningKey(secretKey)
                                 .build()
                                 .parseClaimsJws(newAccessToken)
                                 .getBody();
@@ -152,6 +155,6 @@ public class JwtFilter extends AbstractGatewayFilterFactory<JwtFilter.Config> {
     }
 
     public static class Config {
-        // 필요 시 필드 추가 가능
+
     }
 }
