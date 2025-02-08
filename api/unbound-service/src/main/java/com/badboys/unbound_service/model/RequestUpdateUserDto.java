@@ -10,7 +10,7 @@ public class RequestUpdateUserDto {
 
     private String birth;
 
-    private char gender;
+    private String gender;
 
     private Long regionId;
 }

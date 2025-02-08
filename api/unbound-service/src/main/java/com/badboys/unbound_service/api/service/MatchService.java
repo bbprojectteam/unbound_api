@@ -1,7 +1,11 @@
 package com.badboys.unbound_service.api.service;
 
+import com.badboys.unbound_service.api.repository.MatchHistoryRepository;
 import com.badboys.unbound_service.entity.UserEntity;
+import com.badboys.unbound_service.model.MatchHistoryDto;
 import com.badboys.unbound_service.model.RequestMatchDto;
+import com.badboys.unbound_service.model.ResponseMainInfoDto;
+import com.badboys.unbound_service.model.UserInfoDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisCallback;
@@ -19,13 +23,15 @@ public class MatchService {
 
     private final UserService userService;
     private final RegionService regionService;
+    private final MatchHistoryRepository matchHistoryRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    public MatchService(UserService userService, RegionService regionService, KafkaTemplate<String, Object> kafkaTemplate, RedisTemplate<String, Object> redisTemplate) {
+    public MatchService(UserService userService, RegionService regionService, MatchHistoryRepository matchHistoryRepository, KafkaTemplate<String, Object> kafkaTemplate, RedisTemplate<String, Object> redisTemplate) {
         this.userService = userService;
         this.regionService = regionService;
+        this.matchHistoryRepository = matchHistoryRepository;
         this.kafkaTemplate = kafkaTemplate;
         this.redisTemplate = redisTemplate;
     }
@@ -88,5 +94,13 @@ public class MatchService {
         }
     }
 
+    public ResponseMainInfoDto getMainMatchHistoryList(UserInfoDto userInfoDto) {
 
+        List<MatchHistoryDto> userMatchHistoryList = matchHistoryRepository.findByUserId(userInfoDto.getUserId());
+        List<MatchHistoryDto> regionMatchHistoryList = matchHistoryRepository.findByRegionId(userInfoDto.getUserId());
+        ResponseMainInfoDto responseMainInfoDto = new ResponseMainInfoDto();
+        responseMainInfoDto.setUserMatchHistoryList(userMatchHistoryList);
+        responseMainInfoDto.setRegionMatchHistoryList(regionMatchHistoryList);
+        return responseMainInfoDto;
+    }
 }

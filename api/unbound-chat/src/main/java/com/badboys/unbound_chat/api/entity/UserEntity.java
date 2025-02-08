@@ -37,6 +37,6 @@ public class UserEntity {
     @Column(name = "profileImage")
     private String profileImage;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatRoomUserEntity> chatRoomList = new ArrayList<>();
+    @ManyToMany(mappedBy = "userList")
+    private List<ChatRoomEntity> chatRoomList;
 }

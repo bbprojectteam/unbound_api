@@ -35,4 +35,7 @@ public class RegionEntity {
 
     @OneToMany(mappedBy = "region", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserEntity> userList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "region", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MatchHistoryEntity> matchList = new ArrayList<>();
 }

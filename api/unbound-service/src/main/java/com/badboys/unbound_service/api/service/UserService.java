@@ -4,8 +4,7 @@ import com.badboys.unbound_service.api.repository.UserRepository;
 import com.badboys.unbound_service.entity.RegionEntity;
 import com.badboys.unbound_service.entity.UserEntity;
 import com.badboys.unbound_service.model.RequestUpdateUserDto;
-import com.badboys.unbound_service.model.ResponseUserInfoDto;
-import org.apache.catalina.User;
+import com.badboys.unbound_service.model.UserInfoDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,9 +29,9 @@ public class UserService {
         this.regionService = regionService;
     }
 
-    public ResponseUserInfoDto getUserInfo(Long userId) {
+    public UserInfoDto getUserInfo(Long userId) {
         UserEntity userEntity = getUserEntity(userId);
-        ResponseUserInfoDto responseUserInfoDto = modelMapper.map(userEntity, ResponseUserInfoDto.class);
+        UserInfoDto userInfoDto = modelMapper.map(userEntity, UserInfoDto.class);
         RegionEntity regionEntity = userEntity.getRegion();
         Long regionId = regionEntity.getId();
         List<RegionEntity> regionEntityList = regionService.getAllParents(regionId);
@@ -40,8 +39,10 @@ public class UserService {
         for (RegionEntity region : regionEntityList) {
             regionNm.insert(0, region.getName());
         }
-        responseUserInfoDto.setRegionNm(regionNm.toString());
-        return responseUserInfoDto;
+        userInfoDto.setUserId(userId);
+        userInfoDto.setRegionNm(regionNm.toString());
+        userInfoDto.setRegionId(regionId);
+        return userInfoDto;
     }
 
     public UserEntity getUserEntity(Long userId) {

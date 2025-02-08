@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.catalina.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class UserEntity {
     private String birth;
 
     @Column(name = "gender")
-    private char gender;
+    private String gender;
 
     @Column(name = "profileImage")
     private String profileImage;
@@ -50,10 +51,17 @@ public class UserEntity {
     @JoinColumn(name = "regionId") // 외래 키 설정
     private RegionEntity region;
 
-    public void updateUser(String username, String birth, char gender, RegionEntity region) {
+    @ManyToMany(mappedBy = "userList")
+    private List<TeamEntity> teamList;
+
+    @ManyToMany(mappedBy = "userList")
+    private List<ChatRoomEntity> chatRoomList;
+
+
+    public void updateUser(String username, String birth, String gender, RegionEntity region) {
         this.username = (username != null) ? username : this.username;
         this.birth = (birth != null) ? birth : this.birth;
-        this.gender = (gender != 0) ? gender : this.gender;
+        this.gender = (gender != null) ? gender : this.gender;
         this.region = (region != null) ? region : this.region;
     }
 

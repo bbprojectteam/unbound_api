@@ -6,15 +6,19 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseUserInfoDto {
+public class UserInfoDto {
+
+    private Long userId;
 
     private String username;
 
-    private char gender;
+    private String gender;
 
     private String profileImage;
 
     private Long mmr;
 
     private String regionNm;
+
+    private Long regionId;
 }

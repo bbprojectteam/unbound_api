@@ -1,9 +1,7 @@
 package com.badboys.unbound_service.api;
 
 import com.badboys.unbound_service.api.service.RegionService;
-import com.badboys.unbound_service.api.service.UserService;
 import com.badboys.unbound_service.model.Region;
-import com.badboys.unbound_service.model.ResponseUserInfoDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
