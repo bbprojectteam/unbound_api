@@ -18,7 +18,9 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -40,6 +42,13 @@ public class JwtFilter extends AbstractGatewayFilterFactory<JwtFilter.Config> {
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
+            String requestPath = exchange.getRequest().getURI().getPath();
+            // excludeUrls 체크: 요청이 예외 경로라면 JWT 검증 없이 패스
+            if (config.getExcludeUrls().stream().anyMatch(requestPath::startsWith)) {
+                log.info("Skipping JWT filter for excluded path: {}", requestPath);
+                return chain.filter(exchange);
+            }
+
             HttpHeaders headers = exchange.getRequest().getHeaders();
             String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
             String refreshToken = headers.getFirst("Refresh-Token"); // Refresh-Token 헤더
@@ -155,6 +164,14 @@ public class JwtFilter extends AbstractGatewayFilterFactory<JwtFilter.Config> {
     }
 
     public static class Config {
+        private List<String> excludeUrls = new ArrayList<>();
 
+        public List<String> getExcludeUrls() {
+            return excludeUrls;
+        }
+
+        public void setExcludeUrls(List<String> excludeUrls) {  // 스웨거 경로 예외처리 로직
+            this.excludeUrls = excludeUrls;
+        }
     }
 }
