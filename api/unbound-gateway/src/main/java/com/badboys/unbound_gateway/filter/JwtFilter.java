@@ -44,6 +44,8 @@ public class JwtFilter extends AbstractGatewayFilterFactory<JwtFilter.Config> {
         return (exchange, chain) -> {
             String requestPath = exchange.getRequest().getURI().getPath();
             // excludeUrls 체크: 요청이 예외 경로라면 JWT 검증 없이 패스
+            log.info("Exclude Urls : {}", config.getExcludeUrls().toString());
+            log.info("Request Path : {}", requestPath);
             if (config.getExcludeUrls().stream().anyMatch(requestPath::startsWith)) {
                 log.info("Skipping JWT filter for excluded path: {}", requestPath);
                 return chain.filter(exchange);
