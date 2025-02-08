@@ -17,8 +17,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화 (JWT 사용 시 필요)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register", "/auth/login", "/auth/refresh", "/auth/swagger-ui/**", "/auth/v3/api-docs/**").permitAll() // 허용할 엔드포인트
-                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
+                        .anyRequest().permitAll()
                 )
                 .httpBasic(httpBasic -> httpBasic.disable()) // HTTP Basic 비활성화
                 .formLogin(formLogin -> formLogin.disable()) // Form Login 비활성화

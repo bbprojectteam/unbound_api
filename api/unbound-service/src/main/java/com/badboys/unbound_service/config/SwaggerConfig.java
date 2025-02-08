@@ -11,25 +11,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
-    @Value("${host}")
-    private String hostUrl;
-
     @Bean
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
                 .group("unbound-public")
                 .pathsToMatch("/**") // API 경로 지정
                 .build();
-    }
-
-    @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Unbound API")
-                        .version("1.0")
-                        .description("Unbound 서비스의 API 문서입니다.")
-                )
-                .addServersItem(new Server().url(hostUrl).description("Gateway Server")); // ✅ Gateway URL 설정
     }
 }
