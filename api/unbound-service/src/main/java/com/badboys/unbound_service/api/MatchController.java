@@ -63,7 +63,7 @@ public class MatchController {
 
         try {
             matchService.cancelMatch(userId);
-            return ResponseEntity.ok("매칭 취소 성공");
+            return ResponseEntity.ok(Map.of("message", "매칭 취소 성공"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("message", "레디스 조회 에러"));
         }

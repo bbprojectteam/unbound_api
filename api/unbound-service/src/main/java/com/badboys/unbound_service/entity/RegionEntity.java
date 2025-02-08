@@ -3,6 +3,7 @@ package com.badboys.unbound_service.entity;
 import com.badboys.unbound_service.model.RegionType;
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +34,11 @@ public class RegionEntity {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private List<RegionEntity> childList = new ArrayList<>();
 
+    @BatchSize(size = 10)
     @OneToMany(mappedBy = "region", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserEntity> userList = new ArrayList<>();
 
+    @BatchSize(size = 10)
     @OneToMany(mappedBy = "region", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MatchHistoryEntity> matchList = new ArrayList<>();
 }

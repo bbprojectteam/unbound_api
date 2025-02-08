@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.catalina.User;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,6 +37,7 @@ public class TeamEntity {
     @JoinColumn(name = "matchHistoryId")
     private MatchHistoryEntity matchHistory;
 
+    @BatchSize(size = 3)
     @ManyToMany
     @JoinTable(
             name = "team_user",

@@ -5,6 +5,8 @@ import com.badboys.unbound_service.api.service.UserService;
 import com.badboys.unbound_service.model.ResponseMainInfoDto;
 import com.badboys.unbound_service.model.UserInfoDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +35,10 @@ public class MainController {
 
     @Operation(summary = "메인화면 조회", description = "메인 정보")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공"),
-            @ApiResponse(responseCode = "404", description = "지역 정보 없음")
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = ResponseMainInfoDto.class))),
+            @ApiResponse(responseCode = "404", description = "지역 정보 없음",
+                    content = @Content(schema = @Schema(example = "{\"message\": \"지역 정보 없음\"}")))
     })
     @GetMapping("/info")
     public ResponseEntity<?> getMainInfo(@RequestHeader("X-User-Id") String userId) {

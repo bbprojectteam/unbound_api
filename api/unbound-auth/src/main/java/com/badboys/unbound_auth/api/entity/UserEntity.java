@@ -35,11 +35,11 @@ public class UserEntity {
     private String birth;
 
     @Column(name = "gender")
-    private char gender;
+    private String gender;
 
     @Column(name = "profileImage")
     private String profileImage;
 
     @Column(name = "mmr")
-    private Long mmr;
+    private int mmr;
 }

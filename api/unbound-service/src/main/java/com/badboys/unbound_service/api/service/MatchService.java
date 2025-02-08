@@ -1,11 +1,10 @@
 package com.badboys.unbound_service.api.service;
 
 import com.badboys.unbound_service.api.repository.MatchHistoryRepository;
+import com.badboys.unbound_service.entity.MatchHistoryEntity;
+import com.badboys.unbound_service.entity.TeamEntity;
 import com.badboys.unbound_service.entity.UserEntity;
-import com.badboys.unbound_service.model.MatchHistoryDto;
-import com.badboys.unbound_service.model.RequestMatchDto;
-import com.badboys.unbound_service.model.ResponseMainInfoDto;
-import com.badboys.unbound_service.model.UserInfoDto;
+import com.badboys.unbound_service.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisCallback;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -96,11 +96,47 @@ public class MatchService {
 
     public ResponseMainInfoDto getMainMatchHistoryList(UserInfoDto userInfoDto) {
 
-        List<MatchHistoryDto> userMatchHistoryList = matchHistoryRepository.findByUserId(userInfoDto.getUserId());
-        List<MatchHistoryDto> regionMatchHistoryList = matchHistoryRepository.findByRegionId(userInfoDto.getUserId());
+        List<MatchHistoryEntity> userMatchHistoryEntityList = matchHistoryRepository.findByUserId(userInfoDto.getUserId());
+        List<MatchHistoryDto> userMatchHistoryList = userMatchHistoryEntityList.stream()
+                .map(this::convertToMatchHistoryDto)
+                .collect(Collectors.toList());
+
+        List<MatchHistoryEntity> regionMatchHistoryEntityList = matchHistoryRepository.findByRegionId(userInfoDto.getUserId());
+        List<MatchHistoryDto> regionMatchHistoryList = userMatchHistoryEntityList.stream()
+                .map(this::convertToMatchHistoryDto)
+                .collect(Collectors.toList());
+
         ResponseMainInfoDto responseMainInfoDto = new ResponseMainInfoDto();
         responseMainInfoDto.setUserMatchHistoryList(userMatchHistoryList);
         responseMainInfoDto.setRegionMatchHistoryList(regionMatchHistoryList);
+
         return responseMainInfoDto;
+    }
+
+    private MatchHistoryDto convertToMatchHistoryDto(MatchHistoryEntity matchHistory) {
+        List<TeamInfoDto> teamList = convertToTeamInfoDto(matchHistory.getTeamList());
+
+        return new MatchHistoryDto(
+                matchHistory.getId(),
+                matchHistory.getStartAt(),
+                matchHistory.getEndAt(),
+                matchHistory.getRegion().getId(),
+                teamList
+        );
+    }
+
+    private List<TeamInfoDto> convertToTeamInfoDto(List<TeamEntity> teamEntities) {
+        return teamEntities.stream()
+                .map(team -> {
+                    List<UserSimpleDto> userList = convertToUserSimpleDto(team.getUserList());
+                    return new TeamInfoDto(team.getId(), team.getResult(), userList);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<UserSimpleDto> convertToUserSimpleDto(List<UserEntity> userEntities) {
+        return userEntities.stream()
+                .map(user -> new UserSimpleDto(user.getUsername(), user.getMmr()))
+                .collect(Collectors.toList());
     }
 }

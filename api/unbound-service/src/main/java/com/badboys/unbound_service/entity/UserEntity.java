@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.catalina.User;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +52,11 @@ public class UserEntity {
     @JoinColumn(name = "regionId") // 외래 키 설정
     private RegionEntity region;
 
+    @BatchSize(size = 10)
     @ManyToMany(mappedBy = "userList")
     private List<TeamEntity> teamList;
 
+    @BatchSize(size = 10)
     @ManyToMany(mappedBy = "userList")
     private List<ChatRoomEntity> chatRoomList;
 

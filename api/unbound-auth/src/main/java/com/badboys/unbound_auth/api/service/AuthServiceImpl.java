@@ -43,6 +43,7 @@ public class AuthServiceImpl implements AuthService{
         UserEntity newUser = UserEntity.builder()
                 .uid(uid) // Firebase UID 저장
                 .username(username)
+                .mmr(1000)
                 .build();
 
         // 회원가입 처리
