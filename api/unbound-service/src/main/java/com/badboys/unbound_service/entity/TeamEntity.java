@@ -32,8 +32,8 @@ public class TeamEntity {
     private MatchResultType result;
 
     @ManyToOne
-    @JoinColumn(name = "matchHistoryId")
-    private MatchInfoEntity matchHistory;
+    @JoinColumn(name = "matchInfoId")
+    private MatchInfoEntity matchInfo;
 
     @BatchSize(size = 3)
     @ManyToMany

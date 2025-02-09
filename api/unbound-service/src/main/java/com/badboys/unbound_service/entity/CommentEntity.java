@@ -38,6 +38,7 @@ public class CommentEntity {
     private CommentEntity parent;  // 부모 댓글-
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<CommentEntity> childList = new ArrayList<>();  // 자식 댓글 리스트
 
     @Column(nullable = false)

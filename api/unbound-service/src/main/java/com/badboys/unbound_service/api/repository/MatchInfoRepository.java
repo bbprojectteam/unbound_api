@@ -19,8 +19,8 @@ public interface MatchInfoRepository extends JpaRepository<MatchInfoEntity, Long
     Page<MatchInfoEntity> findByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT m FROM MatchInfoEntity m " +
-            "WHERE m.region.id = :regionId" +
-            "ORDER BY m.id")
+            "WHERE m.region.id = :regionId " +
+            "ORDER BY m.id DESC")
     Page<MatchInfoEntity> findByRegionId(@Param("regionId") Long regionId, Pageable pageable);
 
 }
