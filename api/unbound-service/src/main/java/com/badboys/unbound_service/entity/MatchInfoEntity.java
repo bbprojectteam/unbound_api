@@ -21,7 +21,7 @@ import java.util.List;
                 @Index(name = "idx_history_id", columnList = "id")
         }
 )
-public class MatchHistoryEntity {
+public class MatchInfoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,9 +31,13 @@ public class MatchHistoryEntity {
 
     private LocalDateTime endAt;
 
-    @OneToMany(mappedBy = "matchHistory", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "matchInfo", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<TeamEntity> teamList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "matchInfo", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CommentEntity> commentList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY) // 다대일 관계
     @JoinColumn(name = "regionId") // 외래 키 설정

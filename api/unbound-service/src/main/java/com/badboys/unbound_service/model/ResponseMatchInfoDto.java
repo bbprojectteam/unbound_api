@@ -8,11 +8,10 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class RequestMatchDto {
+@Schema(description = "매치 상세화면 정보 DTO")
+public class ResponseMatchInfoDto {
 
-    private String userId;
+    private MatchHistoryDto matchInfo;
 
-    private int mmr;
-
-    private List<Long> regionIdList;
+    private List<CommentDto> commentList;
 }

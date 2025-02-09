@@ -1,12 +1,14 @@
 package com.badboys.unbound_service.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@AllArgsConstructor
 @Schema(description = "매치 기록 DTO")
 public class MatchHistoryDto {
 
@@ -24,12 +26,4 @@ public class MatchHistoryDto {
 
     @Schema(description = "참여한 팀 리스트", example = "[{teamId: 1, result: 'WIN', userList: [...]}, {teamId: 2, result: 'LOSE', userList: [...]}]")
     private List<TeamInfoDto> teamList;
-
-    public MatchHistoryDto(Long id, LocalDateTime startAt, LocalDateTime endAt, Long regionId, List<TeamInfoDto> teamList) {
-        this.matchId = id;
-        this.startAt = startAt;
-        this.endAt = endAt;
-        this.regionId = regionId;
-        this.teamList = teamList;
-    }
 }

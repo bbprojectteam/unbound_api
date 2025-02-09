@@ -40,5 +40,5 @@ public class RegionEntity {
 
     @BatchSize(size = 10)
     @OneToMany(mappedBy = "region", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MatchHistoryEntity> matchList = new ArrayList<>();
+    private List<MatchInfoEntity> matchList = new ArrayList<>();
 }

@@ -1,19 +1,25 @@
 package com.badboys.unbound_service.api.service;
 
-import com.badboys.unbound_service.api.repository.MatchHistoryRepository;
-import com.badboys.unbound_service.entity.MatchHistoryEntity;
+import com.badboys.unbound_service.api.repository.CommentRepository;
+import com.badboys.unbound_service.api.repository.MatchInfoRepository;
+import com.badboys.unbound_service.api.repository.UserRepository;
+import com.badboys.unbound_service.entity.CommentEntity;
+import com.badboys.unbound_service.entity.MatchInfoEntity;
 import com.badboys.unbound_service.entity.TeamEntity;
 import com.badboys.unbound_service.entity.UserEntity;
 import com.badboys.unbound_service.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -23,15 +29,19 @@ public class MatchService {
 
     private final UserService userService;
     private final RegionService regionService;
-    private final MatchHistoryRepository matchHistoryRepository;
+    private final UserRepository userRepository;
+    private final MatchInfoRepository matchInfoRepository;
+    private final CommentRepository commentRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    public MatchService(UserService userService, RegionService regionService, MatchHistoryRepository matchHistoryRepository, KafkaTemplate<String, Object> kafkaTemplate, RedisTemplate<String, Object> redisTemplate) {
+    public MatchService(UserService userService, RegionService regionService, UserRepository userRepository, MatchInfoRepository matchInfoRepository, CommentRepository commentRepository, KafkaTemplate<String, Object> kafkaTemplate, RedisTemplate<String, Object> redisTemplate) {
         this.userService = userService;
         this.regionService = regionService;
-        this.matchHistoryRepository = matchHistoryRepository;
+        this.userRepository = userRepository;
+        this.matchInfoRepository = matchInfoRepository;
+        this.commentRepository = commentRepository;
         this.kafkaTemplate = kafkaTemplate;
         this.redisTemplate = redisTemplate;
     }
@@ -96,13 +106,13 @@ public class MatchService {
 
     public ResponseMainInfoDto getMainMatchHistoryList(UserInfoDto userInfoDto) {
 
-        List<MatchHistoryEntity> userMatchHistoryEntityList = matchHistoryRepository.findByUserId(userInfoDto.getUserId());
-        List<MatchHistoryDto> userMatchHistoryList = userMatchHistoryEntityList.stream()
+        Page<MatchInfoEntity> userMatchInfoEntityList = matchInfoRepository.findByUserId(userInfoDto.getUserId(), PageRequest.of(0, 5));
+        List<MatchHistoryDto> userMatchHistoryList = userMatchInfoEntityList.stream()
                 .map(this::convertToMatchHistoryDto)
                 .collect(Collectors.toList());
 
-        List<MatchHistoryEntity> regionMatchHistoryEntityList = matchHistoryRepository.findByRegionId(userInfoDto.getUserId());
-        List<MatchHistoryDto> regionMatchHistoryList = userMatchHistoryEntityList.stream()
+        Page<MatchInfoEntity> regionMatchInfoEntityList = matchInfoRepository.findByRegionId(userInfoDto.getUserId(), PageRequest.of(0, 5));
+        List<MatchHistoryDto> regionMatchHistoryList = regionMatchInfoEntityList.stream()
                 .map(this::convertToMatchHistoryDto)
                 .collect(Collectors.toList());
 
@@ -113,7 +123,7 @@ public class MatchService {
         return responseMainInfoDto;
     }
 
-    private MatchHistoryDto convertToMatchHistoryDto(MatchHistoryEntity matchHistory) {
+    private MatchHistoryDto convertToMatchHistoryDto(MatchInfoEntity matchHistory) {
         List<TeamInfoDto> teamList = convertToTeamInfoDto(matchHistory.getTeamList());
 
         return new MatchHistoryDto(
@@ -139,4 +149,93 @@ public class MatchService {
                 .map(user -> new UserSimpleDto(user.getUsername(), user.getMmr()))
                 .collect(Collectors.toList());
     }
+
+    public ResponseMatchInfoDto getMatchHistoryInfo(Long matchInfoId) {
+
+        MatchInfoEntity matchInfoEntity = matchInfoRepository.findById(matchInfoId)
+                .orElseThrow(() -> new IllegalArgumentException("경기 정보 없음"));;
+        MatchHistoryDto matchHistoryDto = convertToMatchHistoryDto(matchInfoEntity);
+
+        List<CommentEntity> commentEntityList = matchInfoEntity.getCommentList().stream()
+                .filter(comment -> comment.getDepth() == 0)
+                .collect(Collectors.toList());
+        Map<Long, String> userMap = preloadUsernames(commentEntityList);
+        List<CommentDto> commentList = new ArrayList<>();
+        for (CommentEntity commentEntity : commentEntityList) {
+            CommentDto commetDto = convertToCommentDto(userMap, commentEntity);
+            if (commetDto != null) {
+                commentList.add(commetDto);
+            }
+        }
+        return new ResponseMatchInfoDto(matchHistoryDto, commentList);
+    }
+
+    private CommentDto convertToCommentDto(Map<Long, String> userMap, CommentEntity commentEntity) {
+
+        String username = userMap.get(commentEntity.getUserId());
+        if (username == null) return null;
+
+        CommentDto commentDto = new CommentDto();
+        commentDto.setCommentId(commentEntity.getId());
+        commentDto.setUserId(commentEntity.getUserId());
+        commentDto.setUsername(username);
+        commentDto.setDepth(commentEntity.getDepth());
+        commentDto.setUpdatedAt(commentEntity.getUpdatedAt());
+        commentDto.setContent(commentEntity.getContent());
+
+        if (commentEntity.getChildList() != null && !commentEntity.getChildList().isEmpty()) {
+            List<CommentDto> childDtoList = new ArrayList<>();
+            for (CommentEntity childEntity : commentEntity.getChildList()) {
+                CommentDto childDto = convertToCommentDto(userMap, childEntity);
+                if (childDto != null) {
+                    childDtoList.add(childDto);
+                }
+            }
+            commentDto.setChildList(childDtoList);
+        }
+
+        return commentDto;
+    }
+
+    /**
+     * UserEntity 조회 캐싱 (N+1 문제 방지)
+     */
+    private Map<Long, String> preloadUsernames(List<CommentEntity> comments) {
+        List<Long> userIds = comments.stream()
+                .map(CommentEntity::getUserId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (userIds.isEmpty()) return Collections.emptyMap();
+
+        return userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(UserEntity::getId, UserEntity::getUsername));
+    }
+
+    public void updateComment(Long userId, RequestUpdateCommentDto requestUpdateCommentDto) {
+
+        if (requestUpdateCommentDto.getCommentId() != null) {       // 업데이트
+            CommentEntity currentCommentEntity = commentRepository.findById(requestUpdateCommentDto.getCommentId())
+                    .orElseThrow(() -> new IllegalArgumentException("원댓글을 찾을 수 없습니다"));
+            currentCommentEntity.updateContent(requestUpdateCommentDto.getContent());
+            commentRepository.save(currentCommentEntity);
+        } else {        // 인서트
+            MatchInfoEntity matchInfoEntity = matchInfoRepository.findById(requestUpdateCommentDto.getMatchInfoId())
+                    .orElseThrow(() -> new IllegalArgumentException("경기 정보 없음"));;
+            CommentEntity commentEntity = CommentEntity.builder()
+                    .content(requestUpdateCommentDto.getContent())
+                    .matchInfo(matchInfoEntity)
+                    .userId(userId)
+                    .depth(0)
+                    .build();
+            if (requestUpdateCommentDto.getParentId() != null) {
+                CommentEntity parentComment = commentRepository.findById(requestUpdateCommentDto.getParentId())
+                    .orElseThrow(() -> new IllegalArgumentException("부모댓글을 찾을 수 없습니다"));
+                commentEntity.setParentComment(parentComment);
+            }
+            commentRepository.save(commentEntity);
+        }
+    }
+
+
 }
