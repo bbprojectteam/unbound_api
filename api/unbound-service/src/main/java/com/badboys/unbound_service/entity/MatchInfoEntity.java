@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -33,7 +35,7 @@ public class MatchInfoEntity {
 
     @OneToMany(mappedBy = "matchInfo", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<TeamEntity> teamList = new ArrayList<>();
+    private Set<TeamEntity> teamList = new HashSet<>();
 
     @OneToMany(mappedBy = "matchInfo", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

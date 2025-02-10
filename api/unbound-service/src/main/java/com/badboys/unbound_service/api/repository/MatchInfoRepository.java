@@ -12,9 +12,7 @@ public interface MatchInfoRepository extends JpaRepository<MatchInfoEntity, Long
 
     @EntityGraph(attributePaths = {"teamList", "teamList.userList"})
     @Query("SELECT m FROM MatchInfoEntity m " +
-            "JOIN m.teamList t " +  // 팀 정보 가져오기
-            "JOIN t.userList u " +  // 유저 정보 가져오기
-            "WHERE u.id = :userId " +
+            "WHERE EXISTS (SELECT 1 FROM TeamEntity t JOIN t.userList u WHERE t.matchInfo = m AND u.id = :userId) " +
             "ORDER BY m.id DESC")
     Page<MatchInfoEntity> findByUserId(@Param("userId") Long userId, Pageable pageable);
 

@@ -1,16 +1,13 @@
 package com.badboys.unbound_match.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+
 import java.util.List;
 
 @Data
-public class RequestMatchDto {
-
-    private Long userId;
-
-    private int mmr;
-
+@AllArgsConstructor
+public class RegionData {
     private List<Long> regionRange;
-
     private Long regionId;
 }

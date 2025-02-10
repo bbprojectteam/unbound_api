@@ -21,7 +21,7 @@ public class KafkaConsumerConfig {
                 "15.165.178.17:10000,15.165.178.17:10001,15.165.178.17:10002");
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, org.springframework.kafka.support.serializer.JsonDeserializer.class);
-        configProps.put(ConsumerConfig.GROUP_ID_CONFIG, "match-consumer-group");
+        configProps.put(ConsumerConfig.GROUP_ID_CONFIG, "match-consumer-group1");
         configProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         // 🔥 JSON 직렬화 설정을 configProps에서만 지정 (Setter 사용 X)

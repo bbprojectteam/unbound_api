@@ -25,7 +25,7 @@ public class RegionEntity {
     private RegionType type; // 지역 타입
 
     @Column(nullable = false)
-    private int level; // 계층 정보
+    private int depth; // 계층 정보
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parentId")

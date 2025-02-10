@@ -30,6 +30,12 @@ public class ChatRoomEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "regionId")
+    private Long regionId;
+
+    @Column(name = "description")
+    private String description;
+
     @ManyToMany
     @JoinTable(
             name = "chat_user",

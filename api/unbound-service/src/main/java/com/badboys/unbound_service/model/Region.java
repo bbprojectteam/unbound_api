@@ -21,7 +21,7 @@ public class Region implements Serializable {
     private RegionType type;
 
     @Schema(description = "지역 레벨 (상위/하위 지역 구분)", example = "2")
-    private int level;
+    private int depth;
 
     @Schema(description = "상위 지역 ID (없으면 null)", example = "10")
     private Long parentId;

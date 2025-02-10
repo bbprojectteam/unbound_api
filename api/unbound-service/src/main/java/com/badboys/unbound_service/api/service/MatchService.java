@@ -67,10 +67,10 @@ public class MatchService {
                 throw new IllegalArgumentException("유저 정보를 찾을 수 없습니다.");
             }
 
-            List<Long> regionIdList = regionService.getAllChildrenId(limitRegionId);
+            List<Long> regionRange = regionService.getAllChildrenId(limitRegionId);
             int mmr = userEntity.getMmr();
 
-            RequestMatchDto requestMatchDto = new RequestMatchDto(userId.toString(), mmr, regionIdList);
+            RequestMatchDto requestMatchDto = new RequestMatchDto(userId, mmr, regionRange, limitRegionId);
 
             CompletableFuture<SendResult<String, Object>> future =
                     kafkaTemplate.send("match-request-topic", requestMatchDto);
@@ -135,7 +135,7 @@ public class MatchService {
         );
     }
 
-    private List<TeamInfoDto> convertToTeamInfoDto(List<TeamEntity> teamEntities) {
+    private List<TeamInfoDto> convertToTeamInfoDto(Set<TeamEntity> teamEntities) {
         return teamEntities.stream()
                 .map(team -> {
                     List<UserSimpleDto> userList = convertToUserSimpleDto(team.getUserList());
@@ -144,7 +144,7 @@ public class MatchService {
                 .collect(Collectors.toList());
     }
 
-    private List<UserSimpleDto> convertToUserSimpleDto(List<UserEntity> userEntities) {
+    private List<UserSimpleDto> convertToUserSimpleDto(Set<UserEntity> userEntities) {
         return userEntities.stream()
                 .map(user -> new UserSimpleDto(user.getUsername(), user.getMmr()))
                 .collect(Collectors.toList());

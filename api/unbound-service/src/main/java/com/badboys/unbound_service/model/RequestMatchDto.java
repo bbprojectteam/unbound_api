@@ -10,9 +10,11 @@ import java.util.List;
 @AllArgsConstructor
 public class RequestMatchDto {
 
-    private String userId;
+    private Long userId;
 
     private int mmr;
 
-    private List<Long> regionIdList;
+    private List<Long> regionRange;
+
+    private Long regionId;
 }

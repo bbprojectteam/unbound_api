@@ -8,7 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -35,12 +37,12 @@ public class TeamEntity {
     @JoinColumn(name = "matchInfoId")
     private MatchInfoEntity matchInfo;
 
-    @BatchSize(size = 3)
     @ManyToMany
     @JoinTable(
             name = "team_user",
             joinColumns = @JoinColumn(name = "teamId"),
             inverseJoinColumns = @JoinColumn(name = "userId")
     )
-    private List<UserEntity> userList;
+    @Builder.Default
+    private Set<UserEntity> userList = new HashSet<>();
 }

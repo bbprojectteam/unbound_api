@@ -47,7 +47,7 @@ public class MatchController {
             @ApiResponse(responseCode = "200", description = "매칭 큐 입력 성공"),
             @ApiResponse(responseCode = "500", description = "매칭 요청 전송 실패")
     })
-    @PostMapping("/start")
+    @PostMapping("/queue/start")
     public ResponseEntity<?> matchStart(@RequestHeader("X-User-Id") String userId, @RequestParam Long limitRegionId) {
 
         boolean isSuccess = matchService.startMatch(Long.valueOf(userId), limitRegionId);
@@ -63,7 +63,7 @@ public class MatchController {
             @ApiResponse(responseCode = "200", description = "매칭 큐 취소 완료"),
             @ApiResponse(responseCode = "500", description = "레디스 조회 에러")
     })
-    @GetMapping("/cancle")
+    @PostMapping("/queue/cancle")
     public ResponseEntity<?> matchCancle(@RequestHeader("X-User-Id") String userId) {
 
         try {
@@ -100,7 +100,7 @@ public class MatchController {
             @ApiResponse(responseCode = "404", description = "매치 없음"),
             @ApiResponse(responseCode = "500", description = "서버 에러")
     })
-    @GetMapping("/comment/update")
+    @PostMapping("/comment/update")
     public ResponseEntity<?> updateComment(@RequestHeader("X-User-Id") String userId, @RequestBody RequestUpdateCommentDto requestUpdateCommentDto) {
 
         try {

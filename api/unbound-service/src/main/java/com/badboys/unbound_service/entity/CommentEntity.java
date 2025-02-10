@@ -61,13 +61,6 @@ public class CommentEntity {
     }
 
     /**
-     * 대댓글 추가
-     */
-    public void addChildComment(CommentEntity child) {
-        this.childList.add(child);
-    }
-
-    /**
      * 부모 설정
      */
     public void setParentComment(CommentEntity parent) {
