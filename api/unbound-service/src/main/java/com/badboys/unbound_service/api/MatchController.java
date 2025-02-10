@@ -1,6 +1,7 @@
 package com.badboys.unbound_service.api;
 
 import com.badboys.unbound_service.api.service.MatchService;
+import com.badboys.unbound_service.model.RequestMatchStartDto;
 import com.badboys.unbound_service.model.RequestUpdateCommentDto;
 import com.badboys.unbound_service.model.ResponseMatchInfoDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,9 +49,9 @@ public class MatchController {
             @ApiResponse(responseCode = "500", description = "매칭 요청 전송 실패")
     })
     @PostMapping("/queue/start")
-    public ResponseEntity<?> matchStart(@RequestHeader("X-User-Id") String userId, @RequestParam Long limitRegionId) {
+    public ResponseEntity<?> matchStart(@RequestHeader("X-User-Id") String userId, @RequestBody RequestMatchStartDto requestMatchStartDto) {
 
-        boolean isSuccess = matchService.startMatch(Long.valueOf(userId), limitRegionId);
+        boolean isSuccess = matchService.startMatch(Long.valueOf(userId), requestMatchStartDto.getLimitRegionId());
         if (isSuccess) {
             return ResponseEntity.ok(Map.of("message", "매칭 요청 전송 성공"));
         } else {

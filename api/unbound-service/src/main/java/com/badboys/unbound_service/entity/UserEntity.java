@@ -73,6 +73,6 @@ public class UserEntity {
     }
 
     public void updateProfileImage(String profileImage) {
-        this.profileImage = profileImage;
+        this.profileImage = (profileImage != null) ? profileImage : this.profileImage;
     }
 }
