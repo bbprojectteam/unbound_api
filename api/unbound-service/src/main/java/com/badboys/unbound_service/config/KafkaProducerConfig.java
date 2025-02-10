@@ -3,6 +3,7 @@ package com.badboys.unbound_service.config;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ser.std.StringSerializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -15,21 +16,30 @@ import java.util.Map;
 @Configuration
 public class KafkaProducerConfig {
 
+    @Value("${spring.kafka.bootstrap-servers}")
+    String serverConfig;
+
+    @Value("${spring.kafka.producer.key-serializer}")
+    String keySerializer;
+
+    @Value("${spring.kafka.producer.value-serializer}")
+    String valueSerializer;
+
     @Bean
-    public ProducerFactory<String, Object> producerFactory() {
+    public ProducerFactory<String, Object> producerFactory() throws ClassNotFoundException {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                "15.165.178.17:10000,15.165.178.17:10001,15.165.178.17:10002");
-        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringSerializer.class);
-        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, org.springframework.kafka.support.serializer.JsonSerializer.class);
-        configProps.put(ProducerConfig.ACKS_CONFIG, "all"); // 메시지 손실 방지
-        configProps.put(ProducerConfig.RETRIES_CONFIG, 3); // 재시도 설정
+                serverConfig);
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, Class.forName(keySerializer));
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, Class.forName(valueSerializer));
+        configProps.put(ProducerConfig.ACKS_CONFIG, "all");
+        configProps.put(ProducerConfig.RETRIES_CONFIG, 3);
 
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
     @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate() {
+    public KafkaTemplate<String, Object> kafkaTemplate() throws ClassNotFoundException {
         return new KafkaTemplate<>(producerFactory());
     }
 }
