@@ -42,6 +42,7 @@ public class UserEntity {
     private List<ChatRoomEntity> chatRoomList;
 
     @BatchSize(size = 10)
+    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FcmTokenEntity> fcmTokenList = new ArrayList<>();
 }

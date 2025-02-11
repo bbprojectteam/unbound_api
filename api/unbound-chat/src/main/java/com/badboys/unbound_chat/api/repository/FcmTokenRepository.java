@@ -18,6 +18,6 @@ public interface FcmTokenRepository extends JpaRepository<FcmTokenEntity, Long> 
 
     // 특정 FCM 토큰 삭제
     @Modifying
-    @Query("DELETE FROM FcmTokenEntity f WHERE f.token = :fcmToken")
-    void deleteByToken(@Param("fcmToken") String fcmToken);
+    @Query("DELETE FROM FcmTokenEntity f WHERE f.token IN :fcmTokens")
+    void deleteByTokens(@Param("fcmToken") Set<String> fcmTokens);
 }

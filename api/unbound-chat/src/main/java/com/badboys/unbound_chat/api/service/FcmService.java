@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,13 +29,27 @@ public class FcmService {
      * 여러 유저에게 한 번에 FCM 푸시 알림 전송
      */
     public void sendNotifications(Set<Long> userIds, String title, String body, Map<String, String> data) {
-
         Set<String> allTokens = fcmTokenRepository.findTokensByUserIds(userIds);
+        Set<String> invalidTokens = new HashSet<>(); // 삭제할 토큰 모음
 
-        // 조회된 모든 FCM 토큰에 대해 알림 전송
         if (!allTokens.isEmpty()) {
             for (String token : allTokens) {
-                sendFcmMessage(token, title, body, data);
+                try {
+                    sendFcmMessage(token, title, body, data);
+                } catch (FirebaseMessagingException e) {
+                    if (e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
+                        log.warn("앱 삭제됨 - FCM 토큰 제거 예정: {}", token);
+                        invalidTokens.add(token);
+                    } else {
+                        log.error("푸시 알림 실패 - Token: {}, Error: {}", token, e.getMessagingErrorCode());
+                    }
+                }
+            }
+
+            // 🚀 한 번에 삭제
+            if (!invalidTokens.isEmpty()) {
+                fcmTokenRepository.deleteByTokens(invalidTokens);
+                log.info("삭제된 FCM 토큰: {}", invalidTokens);
             }
         } else {
             log.warn("FCM 토큰 없음 - UserIDs: {}", userIds);
@@ -44,30 +59,21 @@ public class FcmService {
     /**
      * 개별 FCM 푸시 메시지 전송
      */
-    private void sendFcmMessage(String token, String title, String body, Map<String, String> data) {
-        try {
-            Message.Builder messageBuilder = Message.builder()
-                    .setToken(token)
-                    .setNotification(Notification.builder()
-                            .setTitle(title)
-                            .setBody(body)
-                            .build());
+    private void sendFcmMessage(String token, String title, String body, Map<String, String> data) throws FirebaseMessagingException{
 
-            // 추가 데이터 (예: roomId 등) 포함 가능
-            if (data != null && !data.isEmpty()) {
-                messageBuilder.putAllData(data);
-            }
+        Message.Builder messageBuilder = Message.builder()
+                .setToken(token)
+                .setNotification(Notification.builder()
+                        .setTitle(title)
+                        .setBody(body)
+                        .build());
 
-            firebaseMessaging.send(messageBuilder.build());
-            log.info("푸시 알림 성공 - Token: {}", token);
-
-        } catch (FirebaseMessagingException e) {
-            if (e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
-                log.warn("앱 삭제됨 - FCM 토큰 제거: {}", token);
-                fcmTokenRepository.deleteByToken(token);
-            } else {
-                log.error("푸시 알림 실패 - Token: {}, Error: {}", token, e.getMessagingErrorCode());
-            }
+        // 추가 데이터 (예: roomId 등) 포함 가능
+        if (data != null && !data.isEmpty()) {
+            messageBuilder.putAllData(data);
         }
+
+        firebaseMessaging.send(messageBuilder.build());
+        log.info("푸시 알림 성공 - Token: {}", token);
     }
 }

@@ -17,7 +17,8 @@ import java.util.List;
         name = "fcm_token",
         indexes = {
                 @Index(name = "idx_token_id", columnList = "id"),
-                @Index(name = "idx_user_id", columnList = "user_id", unique = true)
+                @Index(name = "idx_user_id", columnList = "user_id", unique = true),
+                @Index(name = "idx_token", columnList = "token", unique = true)
         }
 )
 public class FcmTokenEntity {
