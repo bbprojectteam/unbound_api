@@ -46,7 +46,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "이미지 업로드 에러")
     })
     @PostMapping("/update/profileImage")
-    public ResponseEntity<?> updateUser(@RequestHeader("X-User-Id") String userId, @RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile) {
+    public ResponseEntity<?> updateUser(@RequestHeader("X-User-Id") String userId, @RequestPart(value = "profileImageFile") MultipartFile profileImageFile) {
 
         try {
             userService.updateUserProfileImage(Long.valueOf(userId), profileImageFile);
