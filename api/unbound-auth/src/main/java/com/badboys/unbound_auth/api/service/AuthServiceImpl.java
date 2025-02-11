@@ -1,5 +1,6 @@
 package com.badboys.unbound_auth.api.service;
 
+import com.badboys.unbound_auth.api.model.RequestUpdateFcmTokenDto;
 import com.badboys.unbound_auth.api.model.TokenResponse;
 import com.badboys.unbound_auth.api.entity.UserEntity;
 import com.badboys.unbound_auth.api.repository.UserRepository;
@@ -57,7 +58,7 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
-    public HttpHeaders login(String authorizationHeader) throws Exception {
+    public HttpHeaders login(String authorizationHeader, RequestUpdateFcmTokenDto requestUpdateFcmTokenDto) throws Exception {
         // Firebase 토큰 검증
         FirebaseToken decodedToken = tokenService.verifyTokenHeader(authorizationHeader);
         String uid = decodedToken.getUid();
@@ -72,6 +73,8 @@ public class AuthServiceImpl implements AuthService{
 
         // 토큰 생성 및 저장
         TokenResponse tokens = generateAndSaveTokens(userId);
+        // fcm 토큰 갱신
+        tokenService.updateFcmToken(user, requestUpdateFcmTokenDto);
 
         // 헤더 생성
         return getHttpHeaders(tokens.getAccessToken(), tokens.getRefreshToken());

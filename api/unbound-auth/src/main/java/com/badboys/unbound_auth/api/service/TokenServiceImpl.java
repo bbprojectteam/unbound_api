@@ -1,5 +1,9 @@
 package com.badboys.unbound_auth.api.service;
 
+import com.badboys.unbound_auth.api.entity.FcmTokenEntity;
+import com.badboys.unbound_auth.api.entity.UserEntity;
+import com.badboys.unbound_auth.api.model.RequestUpdateFcmTokenDto;
+import com.badboys.unbound_auth.api.repository.FcmTokenRepository;
 import com.badboys.unbound_auth.api.repository.UserRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -11,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -18,15 +23,19 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class TokenServiceImpl implements TokenService{
 
-    private final String secretKey; // JWT 서명용 Secret Key
     private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 1; // 30분
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7일
+
+    private final String secretKey; // JWT 서명용 Secret Key
     private final RedisTemplate<String, Object> redisTemplate;
+    private final FcmTokenRepository fcmTokenRepository;
+
 
     @Autowired
-    public TokenServiceImpl(RedisTemplate<String, Object> redisTemplate, @Value("${jwt.secret}") String secretKey) {
+    public TokenServiceImpl(RedisTemplate<String, Object> redisTemplate, @Value("${jwt.secret}") String secretKey, FcmTokenRepository fcmTokenRepository) {
         this.redisTemplate = redisTemplate;
         this.secretKey = secretKey;
+        this.fcmTokenRepository = fcmTokenRepository;
     }
 
     @Override
@@ -87,5 +96,24 @@ public class TokenServiceImpl implements TokenService{
         // Firebase 토큰 검증
         String idToken = authorizationHeader.replace("Bearer ", "");
         return FirebaseAuth.getInstance().verifyIdToken(idToken);
+    }
+
+    @Override
+    public void updateFcmToken(UserEntity userEntity, RequestUpdateFcmTokenDto requestUpdateFcmTokenDto) {
+
+        FcmTokenEntity fcmTokenEntity = fcmTokenRepository.findByUserIdAndAppId(userEntity.getId(), requestUpdateFcmTokenDto.getFcmToken())
+                .orElse(null);
+
+        if (fcmTokenEntity != null) {
+            fcmTokenEntity.updateFcmToken(requestUpdateFcmTokenDto.getFcmToken());
+        }
+        else {
+            fcmTokenEntity = FcmTokenEntity.builder()
+                    .user(userEntity)
+                    .appId(requestUpdateFcmTokenDto.getAppId())
+                    .fcmToken(requestUpdateFcmTokenDto.getFcmToken())
+                    .build();
+        }
+        fcmTokenRepository.save(fcmTokenEntity);
     }
 }

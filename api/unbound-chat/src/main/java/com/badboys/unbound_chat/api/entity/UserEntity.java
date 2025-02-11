@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,4 +40,8 @@ public class UserEntity {
 
     @ManyToMany(mappedBy = "userList")
     private List<ChatRoomEntity> chatRoomList;
+
+    @BatchSize(size = 10)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FcmTokenEntity> fcmTokenList = new ArrayList<>();
 }

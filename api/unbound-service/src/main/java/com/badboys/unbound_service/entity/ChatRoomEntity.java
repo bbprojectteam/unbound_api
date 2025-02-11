@@ -38,7 +38,7 @@ public class ChatRoomEntity {
 
     @ManyToMany
     @JoinTable(
-            name = "chat_user",
+            name = "chat_room_user",
             joinColumns = @JoinColumn(name = "chatRoomId"),
             inverseJoinColumns = @JoinColumn(name = "userId")
     )

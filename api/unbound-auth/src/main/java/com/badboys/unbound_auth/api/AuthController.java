@@ -1,5 +1,6 @@
 package com.badboys.unbound_auth.api;
 
+import com.badboys.unbound_auth.api.model.RequestUpdateFcmTokenDto;
 import com.badboys.unbound_auth.api.service.AuthService;
 import com.badboys.unbound_auth.api.service.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -58,9 +56,9 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰")
     })
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<String> login(@RequestHeader("Authorization") String authorizationHeader, @RequestBody RequestUpdateFcmTokenDto requestUpdateFcmTokenDto) {
         try {
-            HttpHeaders responseHeader = authService.login(authorizationHeader);
+            HttpHeaders responseHeader = authService.login(authorizationHeader, requestUpdateFcmTokenDto);
 
             return ResponseEntity.status(HttpStatus.OK)
                     .headers(responseHeader)
