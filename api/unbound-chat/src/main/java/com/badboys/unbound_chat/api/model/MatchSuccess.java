@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-public class RequestCreateChatRoomDto {
+public class MatchSuccess {
 
     private Set<Long> userIdSet;
 

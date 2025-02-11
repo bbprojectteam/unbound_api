@@ -3,17 +3,15 @@ package com.badboys.unbound_chat.api.service;
 import com.badboys.unbound_chat.api.entity.ChatRoomEntity;
 import com.badboys.unbound_chat.api.entity.RegionEntity;
 import com.badboys.unbound_chat.api.entity.UserEntity;
-import com.badboys.unbound_chat.api.model.RequestCreateChatRoomDto;
+import com.badboys.unbound_chat.api.model.MatchSuccess;
 import com.badboys.unbound_chat.api.repository.ChatRoomRepository;
 import com.badboys.unbound_chat.api.repository.RegionRepository;
 import com.badboys.unbound_chat.api.repository.UserRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
@@ -32,11 +30,11 @@ public class ChatService {
         this.chatRoomRepository = chatRoomRepository;
     }
 
-    public void createChatRoom(RequestCreateChatRoomDto requestCreateChatRoomDto) {
+    public void createChatRoom(MatchSuccess matchSuccess) {
 
-        Set<Long> userIdSet = new HashSet<>(requestCreateChatRoomDto.getUserIdSet());
+        Set<Long> userIdSet = new HashSet<>(matchSuccess.getUserIdSet());
         List<UserEntity> users = userRepository.findAllById(userIdSet);
-        Set<Long> regionIdSet = requestCreateChatRoomDto.getRegionIdSet();
+        Set<Long> regionIdSet = matchSuccess.getRegionIdSet();
         List<RegionEntity> regions = regionRepository.findAllById(regionIdSet);
         RegionEntity region = regions.stream()
                 .max(Comparator.comparingInt(RegionEntity::getDepth))

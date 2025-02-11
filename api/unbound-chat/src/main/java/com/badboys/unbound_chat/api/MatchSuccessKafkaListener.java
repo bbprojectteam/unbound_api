@@ -1,6 +1,6 @@
 package com.badboys.unbound_chat.api;
 
-import com.badboys.unbound_chat.api.model.RequestCreateChatRoomDto;
+import com.badboys.unbound_chat.api.model.MatchSuccess;
 import com.badboys.unbound_chat.api.service.ChatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,22 +10,26 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-@Component
 @Slf4j
-public class ChatRoomKafkaListener {
+@Component
+public class MatchSuccessKafkaListener {
 
     private final ChatService chatService;
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String LOCK_KEY = "CHAT_LOCK";
 
     @Autowired
-    public ChatRoomKafkaListener(ChatService chatService, RedisTemplate<String, Object> redisTemplate) {
+    public MatchSuccessKafkaListener(ChatService chatService, RedisTemplate<String, Object> redisTemplate) {
         this.chatService = chatService;
         this.redisTemplate = redisTemplate;
     }
 
-    @KafkaListener(topics = "match-success-topic", groupId = "chat-consumer-group")
-    public void consumeCreateChatRoomRequest(RequestCreateChatRoomDto request) {
+    @KafkaListener(
+            topics = "match-success-topic",
+            groupId = "${spring.kafka.consumer.match.group-id}",
+            containerFactory = "matchSuccessKafkaListenerContainerFactory"
+    )
+    public void consumeCreateChatRoomRequest(MatchSuccess request) {
 
         // 분산락 적용
         Boolean locked = redisTemplate.opsForValue().setIfAbsent(LOCK_KEY, "LOCK", 5, TimeUnit.SECONDS);
