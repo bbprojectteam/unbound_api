@@ -18,9 +18,16 @@ public class ChatMessageDocument {
 
     private Long chatRoomId;
 
-    private Long userId;
+    private Long senderId;
 
     private String message;
 
     private LocalDateTime createdAt;
+
+    public ChatMessageDocument(Long chatRoomId, Long senderId, String message) {
+        this.chatRoomId = chatRoomId;
+        this.senderId = senderId;
+        this.message = message;
+        this.createdAt = LocalDateTime.now(); // 메시지 생성 시간 자동 설정
+    }
 }

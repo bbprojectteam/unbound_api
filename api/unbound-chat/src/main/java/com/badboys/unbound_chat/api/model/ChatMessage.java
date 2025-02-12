@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class ChatMessage {
 
-    private String chatRoomId;
+    private Long chatRoomId;
 
-    private String senderId;
+    private Long senderId;
 
     private String message;
 }

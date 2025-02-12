@@ -1,41 +1,31 @@
 package com.badboys.unbound_chat.api;
 
 import com.badboys.unbound_chat.api.model.ChatMessage;
+import com.badboys.unbound_chat.api.service.ChatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @Component
 public class ChatKafkaListener {
 
-    private final SimpMessagingTemplate messagingTemplate;
+    private final ChatService chatService;
 
     @Autowired
-    public ChatKafkaListener(SimpMessagingTemplate messagingTemplate) {
-        this.messagingTemplate = messagingTemplate;
+    public ChatKafkaListener(ChatService chatService) {
+        this.chatService = chatService;
     }
 
     @KafkaListener(
-            topics = "chat-topic",
+            topics = "chat-message-topic",
             groupId = "${spring.kafka.consumer.chat.group-id}",
             containerFactory = "chatKafkaListenerContainerFactory"  // ✅ 새 Factory 적용!
     )
-    public void listen(ChatMessage chatMessage) {
+    public void chatListen(ChatMessage chatMessage) {
         log.info("Kafka에서 채팅 메시지 수신: {}", chatMessage);
-
-        // WebSocket을 통해 메시지 브로드캐스트
-        messagingTemplate.convertAndSend("/topic/chat/" + chatMessage.getChatRoomId(), chatMessage, messageHeaders(chatMessage.getSenderId()));
-    }
-
-    private Map<String, Object> messageHeaders(String senderId) {
-        Map<String, Object> headers = new HashMap<>();
-        headers.put("exclude-sender", senderId);  // 메세지 보낸 유저를 WebSocket에서 제외하기 위한 커스텀 헤더 추가
-        return headers;
+        chatService.sendMessage(chatMessage);
     }
 }
