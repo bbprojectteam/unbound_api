@@ -10,4 +10,10 @@ import java.util.List;
 public interface ChatMessageRepository extends MongoRepository<ChatMessageDocument, String> {
 
     List<ChatMessageDocument> findByChatRoomIdOrderByCreatedAtAsc(Long chatRoomId);
+
+    // 특정 메시지 이후의 안 읽은 메시지 개수 조회
+    int countByChatRoomIdAndIdGreaterThan(Long chatRoomId, String lastReadMessageId);
+
+    // 채팅방의 마지막 메시지 조회
+    ChatMessageDocument findTopByChatRoomIdOrderByCreatedAtDesc(Long chatRoomId);
 }

@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.apache.catalina.User;
 import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
@@ -57,9 +56,8 @@ public class UserEntity {
     private List<TeamEntity> teamList;
 
     @BatchSize(size = 10)
-    @ManyToMany(mappedBy = "userList")
-    private List<ChatRoomEntity> chatRoomList;
-
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatMemberEntity> chatMemberList = new ArrayList<>();
 
     public void updateUser(String username, String birth, String gender, RegionEntity region) {
         this.username = (username != null) ? username : this.username;
