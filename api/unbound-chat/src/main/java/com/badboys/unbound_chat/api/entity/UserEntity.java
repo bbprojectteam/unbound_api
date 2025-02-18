@@ -38,8 +38,10 @@ public class UserEntity {
     @Column(name = "profileImage")
     private String profileImage;
 
-    @ManyToMany(mappedBy = "userList")
-    private List<ChatRoomEntity> chatRoomList;
+    @BatchSize(size = 10)
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatMemberEntity> chatMemberList = new ArrayList<>();
 
     @BatchSize(size = 10)
     @Builder.Default

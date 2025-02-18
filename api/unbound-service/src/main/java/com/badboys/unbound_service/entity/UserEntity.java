@@ -56,6 +56,7 @@ public class UserEntity {
     private List<TeamEntity> teamList;
 
     @BatchSize(size = 10)
+    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMemberEntity> chatMemberList = new ArrayList<>();
 

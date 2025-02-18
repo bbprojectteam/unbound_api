@@ -1,15 +1,10 @@
 package com.badboys.unbound_chat.api.service;
 
-import com.badboys.unbound_chat.api.entity.ChatMessageDocument;
-import com.badboys.unbound_chat.api.entity.ChatRoomEntity;
-import com.badboys.unbound_chat.api.entity.RegionEntity;
-import com.badboys.unbound_chat.api.entity.UserEntity;
+import com.badboys.unbound_chat.api.entity.*;
 import com.badboys.unbound_chat.api.model.ChatMessage;
 import com.badboys.unbound_chat.api.model.MatchSuccess;
-import com.badboys.unbound_chat.api.repository.ChatMessageRepository;
-import com.badboys.unbound_chat.api.repository.ChatRoomRepository;
-import com.badboys.unbound_chat.api.repository.RegionRepository;
-import com.badboys.unbound_chat.api.repository.UserRepository;
+import com.badboys.unbound_chat.api.model.RoleType;
+import com.badboys.unbound_chat.api.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -18,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,18 +22,20 @@ public class ChatService {
     private final FcmService fcmService;
     private final UserRepository userRepository;
     private final RegionRepository regionRepository;
+    private final ChatMemberRepository chatMemberRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Autowired
-    public ChatService(FcmService fcmService, UserRepository userRepository, RegionRepository regionRepository, ChatRoomRepository chatRoomRepository,
+    public ChatService(FcmService fcmService, UserRepository userRepository, RegionRepository regionRepository, ChatMemberRepository chatMemberRepository, ChatRoomRepository chatRoomRepository,
                        ChatMessageRepository chatMessageRepository, SimpMessagingTemplate messagingTemplate, KafkaTemplate<String, Object> kafkaTemplate) {
 
         this.fcmService = fcmService;
         this.userRepository = userRepository;
         this.regionRepository = regionRepository;
+        this.chatMemberRepository = chatMemberRepository;
         this.chatRoomRepository = chatRoomRepository;
         this.chatMessageRepository = chatMessageRepository;
         this.messagingTemplate = messagingTemplate;
@@ -55,12 +53,27 @@ public class ChatService {
                 .orElseThrow(() -> new IllegalArgumentException("유효한 지역 정보를 찾을 수 없습니다."));
 
         ChatRoomEntity chatRoom = ChatRoomEntity.builder()
-                .userList(new ArrayList<>())
                 .name(region.getName() != null ? region.getName() + " 채팅방" : "기본 채팅방")
                 .regionId(region.getId())
                 .build();
-        chatRoom.getUserList().addAll(users);
+
         chatRoomRepository.save(chatRoom);
+
+        // MMR이 가장 높은 유저 찾기
+        UserEntity owner = users.stream()
+                .max(Comparator.comparingInt(UserEntity::getMmr))
+                .orElseThrow(() -> new IllegalArgumentException("유효한 유저 정보가 없습니다."));
+
+        List<ChatMemberEntity> chatMembers = users.stream()
+                .map(user -> ChatMemberEntity.builder()
+                        .chatRoom(chatRoom)
+                        .user(user)
+                        .joinedAt(LocalDateTime.now())
+                        .role(user.equals(owner) ? RoleType.OWNER : RoleType.MEMBER) // 가장 높은 MMR이 OWNER
+                        .build())
+                .collect(Collectors.toList());
+
+        chatMemberRepository.saveAll(chatMembers);
 
         fcmService.sendNotifications(userIdSet, "매칭 성공!", "새로운 게임을 즐겨보세요.",
                 Map.of("chatRoomId", chatRoom.getId().toString(), "createdAt", LocalDateTime.now().toString()));
@@ -91,9 +104,9 @@ public class ChatService {
             // WebSocket을 통해 메시지 브로드캐스트
             messagingTemplate.convertAndSend("/topic/chat/" + chatMessage.getChatRoomId(), chatMessage,
                     messageHeaders(chatMessage.getSenderId().toString()));
-            log.info("📤 WebSocket으로 메시지 전송 완료: {}", chatMessage);
+            log.info("WebSocket으로 메시지 전송 완료: {}", chatMessage);
         } catch (Exception e) {
-            log.error("❌ WebSocket 메시지 전송 실패: {}", e.getMessage());
+            log.error("WebSocket 메시지 전송 실패: {}", e.getMessage());
         }
     }
 

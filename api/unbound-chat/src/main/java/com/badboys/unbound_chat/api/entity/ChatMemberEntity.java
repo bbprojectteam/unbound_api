@@ -1,6 +1,6 @@
-package com.badboys.unbound_service.entity;
+package com.badboys.unbound_chat.api.entity;
 
-import com.badboys.unbound_service.model.RoleType;
+import com.badboys.unbound_chat.api.model.RoleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

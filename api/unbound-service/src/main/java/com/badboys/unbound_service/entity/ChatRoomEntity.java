@@ -42,6 +42,7 @@ public class ChatRoomEntity {
     private String description;
 
     @BatchSize(size = 10)
+    @Builder.Default
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMemberEntity> chatMemberList = new ArrayList<>();
 }
