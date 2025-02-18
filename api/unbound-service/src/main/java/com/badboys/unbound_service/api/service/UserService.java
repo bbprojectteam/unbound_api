@@ -5,6 +5,7 @@ import com.badboys.unbound_service.entity.RegionEntity;
 import com.badboys.unbound_service.entity.UserEntity;
 import com.badboys.unbound_service.model.RequestUpdateUserDto;
 import com.badboys.unbound_service.model.UserInfoDto;
+import com.badboys.unbound_service.model.UserSimpleDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -86,5 +89,11 @@ public class UserService {
 
         userEntity.updateProfileImage(profileImageUrl);
         userRepository.save(userEntity);
+    }
+
+    public List<UserSimpleDto> convertToUserSimpleDto(Set<UserEntity> userEntities) {
+        return userEntities.stream()
+                .map(user -> new UserSimpleDto(user.getUsername(), user.getProfileImage(), user.getMmr()))
+                .collect(Collectors.toList());
     }
 }

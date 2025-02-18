@@ -10,11 +10,15 @@ public class UserSimpleDto {
     @Schema(description = "유저 닉네임", example = "Alice")
     private String username;
 
+    @Schema(description = "유저 프사", example = "")
+    private String profileImage;
+
     @Schema(description = "유저 MMR 점수", example = "1500")
     private int mmr;
 
-    public UserSimpleDto(String username, int mmr) {
+    public UserSimpleDto(String username, String profileImage, int mmr) {
         this.username = username;
+        this.profileImage = profileImage;
         this.mmr = mmr;
     }
 }

@@ -35,6 +35,9 @@ public class ChatRoomEntity {
     @Column(name = "regionId")
     private Long regionId;
 
+    @Column(name = "location")
+    private String location;
+
     @Column(name = "description")
     private String description;
 

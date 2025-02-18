@@ -32,6 +32,9 @@ public class ChatMemberEntity {
     @Column(name = "lastReadMessageId")
     private String lastReadMessageId;
 
+    @Column(name = "isLeader")
+    private Boolean isLeader;
+
     @ManyToOne(fetch = FetchType.LAZY) // 다대일 관계
     @JoinColumn(name = "userId") // 외래 키 설정
     private UserEntity user;
@@ -42,4 +45,8 @@ public class ChatMemberEntity {
 
     @Column(name = "joined_at", nullable = false, updatable = false)
     private LocalDateTime joinedAt = LocalDateTime.now();
+
+    public void upateLastReadMessage(String lastReadMessageId) {  // 마지막 읽은 채팅 업데이트
+        this.lastReadMessageId = (lastReadMessageId != null) ? lastReadMessageId : this.lastReadMessageId;
+    }
 }

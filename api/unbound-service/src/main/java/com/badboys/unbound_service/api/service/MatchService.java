@@ -138,15 +138,9 @@ public class MatchService {
     private List<TeamInfoDto> convertToTeamInfoDto(Set<TeamEntity> teamEntities) {
         return teamEntities.stream()
                 .map(team -> {
-                    List<UserSimpleDto> userList = convertToUserSimpleDto(team.getUserList());
+                    List<UserSimpleDto> userList = userService.convertToUserSimpleDto(team.getUserList());
                     return new TeamInfoDto(team.getId(), team.getResult(), userList);
                 })
-                .collect(Collectors.toList());
-    }
-
-    private List<UserSimpleDto> convertToUserSimpleDto(Set<UserEntity> userEntities) {
-        return userEntities.stream()
-                .map(user -> new UserSimpleDto(user.getUsername(), user.getMmr()))
                 .collect(Collectors.toList());
     }
 
