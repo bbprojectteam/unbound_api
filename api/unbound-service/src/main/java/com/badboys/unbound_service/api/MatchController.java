@@ -52,6 +52,12 @@ public class MatchController {
     public ResponseEntity<?> matchStart(@RequestHeader("X-User-Id") String userId, @RequestBody RequestMatchStartDto requestMatchStartDto) {
 
         boolean isSuccess = matchService.startMatch(Long.valueOf(userId), requestMatchStartDto.getLimitRegionId());
+
+        // 테스트용 임시로직
+        for (int i = 1; i <= 5; i ++) {
+            matchService.startMatch(Long.valueOf(i), requestMatchStartDto.getLimitRegionId());
+        }
+
         if (isSuccess) {
             return ResponseEntity.ok(Map.of("message", "매칭 요청 전송 성공"));
         } else {
