@@ -17,8 +17,8 @@ import java.util.List;
         name = "fcm_token",
         indexes = {
                 @Index(name = "idx_token_id", columnList = "id"),
-                @Index(name = "idx_user_id", columnList = "user_id", unique = true),
-                @Index(name = "idx_token", columnList = "token", unique = true)
+                @Index(name = "idx_user_id", columnList = "user_id"),
+                @Index(name = "idx_token", columnList = "token")
         }
 )
 public class FcmTokenEntity {
@@ -28,8 +28,8 @@ public class FcmTokenEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "token")
-    private String token;
+    @Column(name = "fcmToken")
+    private String fcmToken;
 
     @Column(name = "appId")
     private String appId;

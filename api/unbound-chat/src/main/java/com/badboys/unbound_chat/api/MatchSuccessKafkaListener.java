@@ -26,7 +26,7 @@ public class MatchSuccessKafkaListener {
 
     @KafkaListener(
             topics = "match-success-topic",
-            groupId = "${spring.kafka.consumer.match.group-id}",
+            groupId = "111",
             containerFactory = "matchSuccessKafkaListenerContainerFactory"
     )
     public void consumeCreateChatRoomRequest(MatchSuccess request) {

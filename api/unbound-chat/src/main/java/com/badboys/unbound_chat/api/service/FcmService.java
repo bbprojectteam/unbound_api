@@ -32,7 +32,7 @@ public class FcmService {
         Set<String> allTokens = fcmTokenRepository.findTokensByUserIds(userIds);
         Set<String> invalidTokens = new HashSet<>(); // 삭제할 토큰 모음
 
-        if (!allTokens.isEmpty()) {
+        if (allTokens != null && !allTokens.isEmpty()) {
             for (String token : allTokens) {
                 try {
                     sendFcmMessage(token, title, body, data);

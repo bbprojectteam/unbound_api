@@ -13,11 +13,11 @@ import java.util.Set;
 @Repository
 public interface FcmTokenRepository extends JpaRepository<FcmTokenEntity, Long> {
 
-    @Query("SELECT f.token FROM FcmTokenEntity f WHERE f.user.id IN :userIds")
+    @Query("SELECT f.fcmToken FROM FcmTokenEntity f WHERE f.user.id IN :userIds")
     Set<String> findTokensByUserIds(@Param("userIds") Set<Long> userIds);
 
     // 특정 FCM 토큰 삭제
     @Modifying
-    @Query("DELETE FROM FcmTokenEntity f WHERE f.token IN :fcmTokens")
-    void deleteByTokens(@Param("fcmToken") Set<String> fcmTokens);
+    @Query("DELETE FROM FcmTokenEntity f WHERE f.fcmToken IN :fcmTokens")
+    void deleteByTokens(@Param("fcmTokens") Set<String> fcmTokens);
 }
