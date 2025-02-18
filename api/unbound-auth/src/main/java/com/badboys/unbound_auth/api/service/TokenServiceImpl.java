@@ -101,7 +101,7 @@ public class TokenServiceImpl implements TokenService{
     @Override
     public void updateFcmToken(UserEntity userEntity, RequestUpdateFcmTokenDto requestUpdateFcmTokenDto) {
 
-        FcmTokenEntity fcmTokenEntity = fcmTokenRepository.findByUserIdAndAppId(userEntity.getId(), requestUpdateFcmTokenDto.getFcmToken())
+        FcmTokenEntity fcmTokenEntity = fcmTokenRepository.findByUserIdAndAppId(userEntity.getId(), requestUpdateFcmTokenDto.getAppId())
                 .orElse(null);
 
         if (fcmTokenEntity != null) {
