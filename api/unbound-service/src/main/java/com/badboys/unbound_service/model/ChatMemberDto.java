@@ -17,5 +17,7 @@ public class ChatMemberDto {
 
     private String profileImage;
 
+    private Long mmr;
+
     private String lastReadMessageId;
 }

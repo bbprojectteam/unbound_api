@@ -19,9 +19,15 @@ public interface ChatMemberRepository extends JpaRepository<ChatMemberEntity, Lo
     @Query("SELECT cm.chatRoom FROM ChatMemberEntity cm WHERE cm.user.id = :userId")
     List<ChatRoomEntity> findChatRoomsByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT new com.badboys.unbound_service.model.ChatMemberDto(cm.user.id, cm.user.username, cm.user.profileImage, cm.lastReadMessageId) " +
+    @Query("SELECT new com.badboys.unbound_service.model.ChatMemberDto(cm.user.id, cm.user.username, cm.user.profileImage, cm.user.mmr, cm.lastReadMessageId) " +
+            "FROM ChatMemberEntity cm " +
+            "JOIN cm.user " +
+            "WHERE cm.chatRoom.id = :chatRoomId AND cm.user.id != :userId")
+    List<ChatMemberDto> findChatMembersByChatRoomIdExcludingUser(@Param("userId") Long userId, @Param("chatRoomId") Long chatRoomId);
+
+    @Query("SELECT new com.badboys.unbound_service.model.ChatMemberDto(cm.user.id, cm.user.username, cm.user.profileImage, cm.user.mmr, cm.lastReadMessageId) " +
             "FROM ChatMemberEntity cm " +
             "JOIN cm.user " +
             "WHERE cm.chatRoom.id = :chatRoomId")
-    List<ChatMemberDto> findWithUserByChatRoomId(@Param("chatRoomId") Long chatRoomId);
+    List<ChatMemberDto> findChatMembersByChatRoomId(@Param("chatRoomId") Long chatRoomId);
 }

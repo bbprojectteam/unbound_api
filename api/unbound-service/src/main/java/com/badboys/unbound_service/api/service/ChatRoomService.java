@@ -70,14 +70,14 @@ public class ChatRoomService {
         return chatRoomThumbnailDtoList;
     }
 
-    public ResponseChatRoomInfoDto getChatRoomInfo(Long chatRoomId) {
+    public ResponseChatRoomInfoDto getChatRoomInfo(Long userId, Long chatRoomId) {
 
         ResponseChatRoomInfoDto responseDto = new ResponseChatRoomInfoDto();
 
         ChatRoomEntity chatRoomEntity = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new EntityNotFoundException("채팅방을 찾을 수 없습니다. ID: " + chatRoomId));
         ChatRoomInfo chatRoomInfo = modelMapper.map(chatRoomEntity, ChatRoomInfo.class);
 
-        List<ChatMemberDto> memberList = chatMemberRepository.findWithUserByChatRoomId(chatRoomId);
+        List<ChatMemberDto> memberList = chatMemberRepository.findChatMembersByChatRoomIdExcludingUser(userId, chatRoomId);
 
         responseDto.setChatRoomInfo(chatRoomInfo);
         responseDto.setMemberList(memberList);
@@ -120,7 +120,7 @@ public class ChatRoomService {
     // 채팅방의 메시지 목록 반환
     public List<MessageDto> convertMessage(List<ChatMessageDocument> messages, Long chatRoomId) {
 
-        List<ChatMemberDto> chatMembers = chatMemberRepository.findWithUserByChatRoomId(chatRoomId);
+        List<ChatMemberDto> chatMembers = chatMemberRepository.findChatMembersByChatRoomId(chatRoomId);
         Map<Long, ChatMemberDto> memberMap = new HashMap<>();
         List<ObjectId> memberLastReadIdList = getObjectIds(chatMembers, memberMap);
 

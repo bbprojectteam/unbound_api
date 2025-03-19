@@ -54,7 +54,7 @@ public class ChatRoomController {
     public ResponseEntity<?> getChatRoomInfo(@RequestHeader("X-User-Id") String userId, @PathVariable Long chatRoomId) {
 
         try {
-            ResponseChatRoomInfoDto responseChatRoomInfoDto = chatRoomService.getChatRoomInfo(chatRoomId);
+            ResponseChatRoomInfoDto responseChatRoomInfoDto = chatRoomService.getChatRoomInfo(Long.parseLong(userId), chatRoomId);
             return ResponseEntity.ok(responseChatRoomInfoDto);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
