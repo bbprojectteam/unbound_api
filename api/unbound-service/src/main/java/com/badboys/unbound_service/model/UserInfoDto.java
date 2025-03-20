@@ -20,7 +20,7 @@ public class UserInfoDto {
     private String profileImage;
 
     @Schema(description = "유저 MMR 점수", example = "1000")
-    private Long mmr;
+    private int mmr;
 
     @Schema(description = "지역명", example = "대전광역시 서구 괴정동")
     private String regionNm;
