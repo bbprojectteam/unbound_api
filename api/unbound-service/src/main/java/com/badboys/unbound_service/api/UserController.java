@@ -2,7 +2,11 @@ package com.badboys.unbound_service.api;
 
 import com.badboys.unbound_service.api.service.UserService;
 import com.badboys.unbound_service.model.RequestUpdateUserDto;
+import com.badboys.unbound_service.model.ResponseMainInfoDto;
+import com.badboys.unbound_service.model.UserInfoDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,5 +58,17 @@ public class UserController {
         } catch(RuntimeException  e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "이미지 업로드 실패"));
         }
+    }
+
+    @Operation(summary = "다른 유저 정보 조회", description = "유저 정보")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "유저 없음")
+    })
+    @GetMapping("/{targetUserId}/info")
+    public ResponseEntity<?> getUserInfo(@RequestHeader("X-User-Id") String userId, @PathVariable Long targetUserId) {
+
+        UserInfoDto userInfoDto = userService.getUserInfo(Long.valueOf(targetUserId));
+        return ResponseEntity.ok(userInfoDto);
     }
 }

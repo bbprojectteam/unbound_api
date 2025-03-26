@@ -51,4 +51,8 @@ public class ChatMemberEntity {
     public void upateLastReadMessage(String lastReadMessageId) {  // 마지막 읽은 채팅 업데이트
         this.lastReadMessageId = (lastReadMessageId != null) ? lastReadMessageId : this.lastReadMessageId;
     }
+
+    public void setChatRoom(ChatRoomEntity chatRoom) {
+        this.chatRoom = chatRoom;
+    }
 }

@@ -4,17 +4,18 @@ package com.badboys.unbound_service.api.service;
 import com.badboys.unbound_service.api.repository.ChatMemberRepository;
 import com.badboys.unbound_service.api.repository.ChatMessageRepository;
 import com.badboys.unbound_service.api.repository.ChatRoomRepository;
-import com.badboys.unbound_service.entity.ChatMemberEntity;
-import com.badboys.unbound_service.entity.ChatMessageDocument;
-import com.badboys.unbound_service.entity.ChatRoomEntity;
+import com.badboys.unbound_service.entity.*;
 import com.badboys.unbound_service.model.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,7 +75,7 @@ public class ChatRoomService {
 
         ResponseChatRoomInfoDto responseDto = new ResponseChatRoomInfoDto();
 
-        ChatRoomEntity chatRoomEntity = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new EntityNotFoundException("채팅방을 찾을 수 없습니다. ID: " + chatRoomId));
+        ChatRoomEntity chatRoomEntity = getChatRoomEntity(chatRoomId);
         ChatRoomInfo chatRoomInfo = modelMapper.map(chatRoomEntity, ChatRoomInfo.class);
 
         List<ChatMemberDto> memberList = chatMemberRepository.findChatMembersByChatRoomIdExcludingUser(userId, chatRoomId);
@@ -176,7 +177,57 @@ public class ChatRoomService {
         return convertMessage(messages, chatRoomId);       // 메시지 목록 반환
     }
 
+    public void updateChatRoomInfo(Long chatRoomId, RequestUpdateChatRoomDto requestUpdateChatRoomDto){
 
+        ChatRoomEntity chatRoomEntity = getChatRoomEntity(chatRoomId);
+        chatRoomEntity.updateChatRoomInfo(
+                requestUpdateChatRoomDto.getName(),
+                requestUpdateChatRoomDto.getLocation(),
+                requestUpdateChatRoomDto.getDescription(),
+                requestUpdateChatRoomDto.getMatchDt()
+        );
+        chatRoomRepository.save(chatRoomEntity);
+    }
 
+    public ChatRoomEntity getChatRoomEntity(Long chatRoomId) {
+        ChatRoomEntity chatRoomEntity = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다. ID: " + chatRoomId));
+        return chatRoomEntity;
+    }
+
+    @Transactional
+    public void exitChatRoom(Long userId, Long chatRoomId){
+
+        ChatMemberEntity chatMemberEntity = chatMemberRepository.findByUserIdAndChatRoomId(userId, chatRoomId);
+        if (chatMemberEntity == null) {
+            throw new EntityNotFoundException("채팅방에 해당 유저가 존재하지 않습니다.");
+        }
+        ChatRoomEntity chatRoomEntity = chatMemberEntity.getChatRoom();
+
+        chatRoomEntity.removeChatMember(chatMemberEntity);
+        chatRoomRepository.save(chatRoomEntity);
+    }
+
+    @Transactional
+    public boolean joinChatRoom(Long userId, Long chatRoomId){
+
+        ChatRoomEntity chatRoom = getChatRoomEntity(chatRoomId);
+        List<ChatMemberEntity> chatMemberList = chatRoom.getChatMemberList();
+
+        if (chatMemberList.size() >= 6) {
+            return false;
+        }
+        UserEntity user = userService.getUserEntity(userId);
+        ChatMemberEntity newMember =  ChatMemberEntity.builder()
+                .chatRoom(chatRoom)
+                .user(user)
+                .joinedAt(LocalDateTime.now())
+                .role(RoleType.MEMBER)
+                .build();
+        chatRoom.addChatMember(newMember);
+        chatRoomRepository.save(chatRoom);
+
+        return true;
+    }
 
 }

@@ -1,10 +1,6 @@
 package com.badboys.unbound_service.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,15 +10,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatRoomInfo {
-
-    private Long id;
+public class RequestUpdateChatRoomDto {
 
     @Schema(description = "방제목", example = "익산농구")
     private String name;
-
-    @Schema(description = "지역아이디(매칭에 사용된 고정값)", example = "1")
-    private Long regionId;
 
     @Schema(description = "경기 날짜", example = "2025-03-26 08:00")
     private String matchDt;

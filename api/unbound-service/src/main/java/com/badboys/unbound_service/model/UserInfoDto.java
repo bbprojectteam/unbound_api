@@ -22,6 +22,9 @@ public class UserInfoDto {
     @Schema(description = "유저 MMR 점수", example = "1000")
     private int mmr;
 
+    @Schema(description = "자기소개", example = "익산사는 Alice입니다.")
+    private String introduction;
+
     @Schema(description = "지역명", example = "대전광역시 서구 괴정동")
     private String regionNm;
 

@@ -47,6 +47,9 @@ public class UserEntity {
     @Column(name = "mmr")
     private int mmr;
 
+    @Column(name = "introduction", length = 1000)
+    private String introduction;
+
     @ManyToOne(fetch = FetchType.LAZY) // 다대일 관계
     @JoinColumn(name = "regionId") // 외래 키 설정
     private RegionEntity region;

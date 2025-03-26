@@ -54,7 +54,7 @@ public class UserService {
 
     public UserEntity getUserEntity(Long userId) {
         UserEntity userEntity = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NO_CONTENT, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저가 존재하지 않습니다."));
         return userEntity;
     }
 
@@ -93,7 +93,7 @@ public class UserService {
 
     public List<UserSimpleDto> convertToUserSimpleDto(Set<UserEntity> userEntities) {
         return userEntities.stream()
-                .map(user -> new UserSimpleDto(user.getUsername(), user.getProfileImage(), user.getMmr()))
+                .map(user -> new UserSimpleDto(user.getId(), user.getUsername(), user.getProfileImage(), user.getMmr(), user.getIntroduction()))
                 .collect(Collectors.toList());
     }
 }

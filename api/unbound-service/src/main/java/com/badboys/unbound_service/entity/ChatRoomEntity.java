@@ -41,8 +41,28 @@ public class ChatRoomEntity {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "matchDt")
+    private String matchDt;
+
     @BatchSize(size = 10)
     @Builder.Default
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMemberEntity> chatMemberList = new ArrayList<>();
+
+    public void updateChatRoomInfo(String name, String location, String description, String matchDt) {
+        this.name = (name != null) ? name : this.name;
+        this.location = (location != null) ? location : this.location;
+        this.description = (description != null) ? description : this.description;
+        this.matchDt = (matchDt != null) ? matchDt : this.matchDt;
+    }
+
+    public void addChatMember(ChatMemberEntity member) {
+        chatMemberList.add(member);
+        member.setChatRoom(this);
+    }
+
+    public void removeChatMember(ChatMemberEntity member) {
+        chatMemberList.remove(member);
+        member.setChatRoom(null);
+    }
 }
