@@ -63,10 +63,11 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMemberEntity> chatMemberList = new ArrayList<>();
 
-    public void updateUser(String username, String birth, String gender, RegionEntity region) {
+    public void updateUser(String username, String birth, String gender, String introduction, RegionEntity region) {
         this.username = (username != null) ? username : this.username;
         this.birth = (birth != null) ? birth : this.birth;
         this.gender = (gender != null) ? gender : this.gender;
+        this.introduction = (introduction != null) ? introduction : this.gender;
         this.region = (region != null) ? region : this.region;
     }
 

@@ -27,6 +27,8 @@ public class ChatRoomService {
 
     private final UserService userService;
 
+    private final RegionService regionService;
+
     private final ModelMapper modelMapper;
 
     private final ChatRoomRepository chatRoomRepository;
@@ -36,15 +38,16 @@ public class ChatRoomService {
     private final ChatMessageRepository chatMessageRepository;
 
     @Autowired
-    public ChatRoomService(UserService userService, ModelMapper modelMapper, ChatRoomRepository chatRoomRepository, ChatMemberRepository chatMemberRepository, ChatMessageRepository chatMessageRepository) {
+    public ChatRoomService(UserService userService, RegionService regionService, ModelMapper modelMapper, ChatRoomRepository chatRoomRepository, ChatMemberRepository chatMemberRepository, ChatMessageRepository chatMessageRepository) {
         this.userService = userService;
+        this.regionService = regionService;
         this.modelMapper = modelMapper;
         this.chatRoomRepository = chatRoomRepository;
         this.chatMemberRepository = chatMemberRepository;
         this.chatMessageRepository = chatMessageRepository;
     }
 
-    public List<ChatRoomThumbnailDto> getChatRoomList(Long userId) {
+    public List<ChatRoomThumbnailDto> getJoinedChatRoomList(Long userId) {
 
         List<ChatRoomThumbnailDto> chatRoomThumbnailDtoList = new ArrayList<>();
 
@@ -65,9 +68,16 @@ public class ChatRoomService {
             String lastMessageText = (lastMessage != null) ? lastMessage.getMessage() : null;
             String lastMessageTime = (lastMessage != null) ? lastMessage.getCreatedAt().toString() : null;
 
-            chatRoomThumbnailDtoList.add(new ChatRoomThumbnailDto(chatRoomEntity.getId(), chatRoomEntity.getName(), unreadCount, lastMessageText, lastMessageTime));
+            chatRoomThumbnailDtoList.add(new ChatRoomThumbnailDto(chatRoomEntity.getId(), chatRoomEntity.getName(), chatRoomEntity.getChatMemberList().size(), chatRoomEntity.getRegionId(), unreadCount, lastMessageText, lastMessageTime));
         }
 
+        return chatRoomThumbnailDtoList;
+    }
+
+    public List<ChatRoomThumbnailDto> getUnJoinedChatRoomList(Long userId, Long regionId) {
+
+        List<Long> regionIdList = regionService.getAllChildrenId(regionId);
+        List<ChatRoomThumbnailDto> chatRoomThumbnailDtoList = chatRoomRepository.findUnjoinedChatRoomList(userId, regionIdList);
         return chatRoomThumbnailDtoList;
     }
 

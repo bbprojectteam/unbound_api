@@ -28,13 +28,23 @@ public class ChatRoomController {
         this.chatRoomService = chatRoomService;
     }
 
-    @Operation(summary = "채팅방 목록 조회", description = "채팅방 목록")
+    @Operation(summary = "참여한 채팅방 목록 조회", description = "참여한 채팅방 목록")
     @ApiResponse(responseCode = "200", description = "조회 성공",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ChatRoomThumbnailDto.class))))
-    @GetMapping("/list")
-    public ResponseEntity<?> getChatRoomList(@RequestHeader("X-User-Id") String userId) {
+    @GetMapping("/list/joined")
+    public ResponseEntity<?> getJoinedChatRoomList(@RequestHeader("X-User-Id") String userId) {
 
-        List<ChatRoomThumbnailDto> chatRoomList = chatRoomService.getChatRoomList(Long.parseLong(userId));
+        List<ChatRoomThumbnailDto> chatRoomList = chatRoomService.getJoinedChatRoomList(Long.parseLong(userId));
+        return ResponseEntity.ok(Map.of("chatRoomList", chatRoomList));
+    }
+
+    @Operation(summary = "참여한 채팅방 목록 조회", description = "참여한 채팅방 목록")
+    @ApiResponse(responseCode = "200", description = "조회 성공",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ChatRoomThumbnailDto.class))))
+    @GetMapping("/list/unJoined/{regionId}")
+    public ResponseEntity<?> getUnJoinedChatRoomList(@RequestHeader("X-User-Id") String userId, @PathVariable Long regionId) {
+
+        List<ChatRoomThumbnailDto> chatRoomList = chatRoomService.getUnJoinedChatRoomList(Long.parseLong(userId), regionId);
         return ResponseEntity.ok(Map.of("chatRoomList", chatRoomList));
     }
 

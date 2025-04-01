@@ -44,6 +44,24 @@ public class ChatRoomEntity {
     @Column(name = "matchDt")
     private String matchDt;
 
+    @Column(name = "threeOnThreeYn", columnDefinition = "CHAR(1) DEFAULT 'Y'")
+    private String threeOnThreeYn;
+
+    @Column(name = "ballYn", columnDefinition = "CHAR(1) DEFAULT 'Y'")
+    private String ballYn;
+
+    @Column(name = "refreeYn", columnDefinition = "CHAR(1) DEFAULT 'N'")
+    private String refreeYn;
+
+    @Column(name = "backBoardYn", columnDefinition = "CHAR(1) DEFAULT 'Y'")
+    private String backBoardYn;
+
+    @Column(name = "threePointLimitYn", columnDefinition = "CHAR(1) DEFAULT 'N'")
+    private String threePointLimitYn;
+
+    @Column(name = "halfCourtYn", columnDefinition = "CHAR(1) DEFAULT 'Y'")
+    private String halfCourtYn;
+
     @BatchSize(size = 10)
     @Builder.Default
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)

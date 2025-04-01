@@ -17,6 +17,12 @@ public class ChatRoomThumbnailDto {
     @Schema(description = "채팅방 이름", example = "농구 매칭 채팅방")
     private String name;
 
+    @Schema(description = "멤버 수", example = "3")
+    private int memberCnt;
+
+    @Schema(description = "지역 아이디", example = "1")
+    private Long regionId;
+
     @Schema(description = "안 읽은 메시지 개수", example = "5")
     private int unreadCnt;
 
@@ -25,5 +31,15 @@ public class ChatRoomThumbnailDto {
 
     @Schema(description = "마지막 메시지 생성 시간", example = "2025-02-18T15:30:00Z")
     private String lastMessageCreatedAt;
+
+    public ChatRoomThumbnailDto(Long chatRoomId, String name, int memberCnt, Long regionId) {
+        this.chatRoomId = chatRoomId;
+        this.name = name;
+        this.memberCnt = memberCnt;
+        this.regionId = regionId;
+        this.unreadCnt = 0;
+        this.lastMessage = "";
+        this.lastMessageCreatedAt = null;
+    }
 }
 

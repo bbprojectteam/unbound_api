@@ -18,6 +18,9 @@ public class RequestUpdateUserDto {
     @Schema(description = "성별 (M: 남성, F: 여성)", example = "M")
     private String gender;
 
+    @Schema(description = "자기소개", example = "익산사는 김원웅입니다.")
+    private String introduction;
+
     @Schema(description = "지역 ID", example = "1")
     private Long regionId;
 }

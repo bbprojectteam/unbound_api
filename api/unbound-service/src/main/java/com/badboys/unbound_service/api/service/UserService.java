@@ -70,6 +70,7 @@ public class UserService {
                 requestUpdateUserDto.getUsername(),
                 requestUpdateUserDto.getBirth(),
                 requestUpdateUserDto.getGender(),
+                requestUpdateUserDto.getIntroduction(),
                 regionEntity
         );
         userRepository.save(userEntity);
