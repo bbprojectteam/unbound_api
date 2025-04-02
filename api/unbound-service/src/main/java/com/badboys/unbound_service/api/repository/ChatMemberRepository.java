@@ -14,7 +14,6 @@ import java.util.List;
 @Repository
 public interface ChatMemberRepository extends JpaRepository<ChatMemberEntity, Long> {
 
-    @EntityGraph(attributePaths = {"chatMemberList"})
     @Query("SELECT cm.chatRoom FROM ChatMemberEntity cm WHERE cm.user.id = :userId")
     List<ChatRoomEntity> findChatRoomsByUserId(@Param("userId") Long userId);
 

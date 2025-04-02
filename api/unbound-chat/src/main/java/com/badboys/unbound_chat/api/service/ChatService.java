@@ -53,7 +53,7 @@ public class ChatService {
                 .orElseThrow(() -> new IllegalArgumentException("유효한 지역 정보를 찾을 수 없습니다."));
 
         ChatRoomEntity chatRoom = ChatRoomEntity.builder()
-                .name(region.getName() != null ? region.getName() + " 채팅방" : "기본 채팅방")
+                .name(region.getName() != null ? region.getName() + " 라커룸" : "기본 라커룸")
                 .regionId(region.getId())
                 .build();
 

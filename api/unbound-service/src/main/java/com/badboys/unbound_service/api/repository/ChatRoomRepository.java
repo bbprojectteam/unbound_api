@@ -13,8 +13,27 @@ import java.util.List;
 public interface ChatRoomRepository extends JpaRepository<ChatRoomEntity, Long> {
 
     @Query("""
-        SELECT new com.badboys.unbound_service.model.ChatRoomThumbnailDto(cr.id, cr.name, SIZE(cr.chatMemberList), cr.regionId)
+        SELECT new com.badboys.unbound_service.model.ChatRoomThumbnailDto(cr.id, cr.name, SIZE(cr.chatMemberList), cr.regionId, AVG(u.mmr))
         FROM ChatRoomEntity cr
+        JOIN cr.chatMemberList cm
+        JOIN cm.user u
+        WHERE EXISTS (
+            SELECT 1
+            FROM ChatMemberEntity cm
+            WHERE cm.chatRoom.id = cr.id
+              AND cm.user.id = :userId
+        )
+        GROUP BY cr.id
+    """)
+    List<ChatRoomThumbnailDto> findJoinedChatRoomList(
+            @Param("userId") Long userId
+    );
+
+    @Query("""
+        SELECT new com.badboys.unbound_service.model.ChatRoomThumbnailDto(cr.id, cr.name, SIZE(cr.chatMemberList), cr.regionId, AVG(u.mmr))
+        FROM ChatRoomEntity cr
+        JOIN cr.chatMemberList cm
+        JOIN cm.user u
         WHERE NOT EXISTS (
             SELECT 1
             FROM ChatMemberEntity cm

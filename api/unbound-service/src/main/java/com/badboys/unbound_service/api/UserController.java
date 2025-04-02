@@ -1,12 +1,12 @@
 package com.badboys.unbound_service.api;
 
+import com.badboys.unbound_service.api.service.MatchService;
 import com.badboys.unbound_service.api.service.UserService;
+import com.badboys.unbound_service.model.MatchHistoryDto;
 import com.badboys.unbound_service.model.RequestUpdateUserDto;
-import com.badboys.unbound_service.model.ResponseMainInfoDto;
+import com.badboys.unbound_service.model.ResponseUserInfoDto;
 import com.badboys.unbound_service.model.UserInfoDto;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -23,9 +24,32 @@ public class UserController {
 
     private final UserService userService;
 
+    private final MatchService matchService;
+
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, MatchService matchService) {
         this.userService = userService;
+        this.matchService = matchService;
+    }
+
+    @Operation(summary = "유저정보 업데이트", description = "유저정보 갱신")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "업데이트 성공"),
+            @ApiResponse(responseCode = "404", description = "지역 에러")
+    })
+    @GetMapping("/my/info")
+    public ResponseEntity<?> myInfo(@RequestHeader("X-User-Id") String userId) {
+
+        try {
+            UserInfoDto userInfoDto = userService.getUserInfo(Long.valueOf(userId));
+            List<MatchHistoryDto> matchHistoryDtoList = matchService.getUserMatchHistoryList(Long.valueOf(userId));
+
+            ResponseUserInfoDto responseUserInfoDto = new ResponseUserInfoDto(userInfoDto, matchHistoryDtoList);
+
+            return ResponseEntity.ok(responseUserInfoDto);
+        } catch(IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        }
     }
 
     @Operation(summary = "유저정보 업데이트", description = "유저정보 갱신")
@@ -68,7 +92,15 @@ public class UserController {
     @GetMapping("/{targetUserId}/info")
     public ResponseEntity<?> getUserInfo(@RequestHeader("X-User-Id") String userId, @PathVariable Long targetUserId) {
 
-        UserInfoDto userInfoDto = userService.getUserInfo(Long.valueOf(targetUserId));
-        return ResponseEntity.ok(userInfoDto);
+        try {
+            UserInfoDto userInfoDto = userService.getUserInfo(Long.valueOf(targetUserId));
+            List<MatchHistoryDto> matchHistoryDtoList = matchService.getUserMatchHistoryList(Long.valueOf(targetUserId));
+
+            ResponseUserInfoDto responseUserInfoDto = new ResponseUserInfoDto(userInfoDto, matchHistoryDtoList);
+
+            return ResponseEntity.ok(responseUserInfoDto);
+        } catch(IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        }
     }
 }

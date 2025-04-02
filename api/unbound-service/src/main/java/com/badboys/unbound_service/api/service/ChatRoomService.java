@@ -49,12 +49,10 @@ public class ChatRoomService {
 
     public List<ChatRoomThumbnailDto> getJoinedChatRoomList(Long userId) {
 
-        List<ChatRoomThumbnailDto> chatRoomThumbnailDtoList = new ArrayList<>();
+        List<ChatRoomThumbnailDto> chatRoomList = chatRoomRepository.findJoinedChatRoomList(userId);
 
-        List<ChatRoomEntity> chatRoomEntityList = chatMemberRepository.findChatRoomsByUserId(userId);
-
-        for (ChatRoomEntity chatRoomEntity : chatRoomEntityList) {
-            Long chatRoomId = chatRoomEntity.getId();
+        for (ChatRoomThumbnailDto chatRoom : chatRoomList) {
+            Long chatRoomId = chatRoom.getChatRoomId();
 
             ChatMemberEntity chatMemberEntity = chatMemberRepository.findByUserIdAndChatRoomId(userId, chatRoomId);
             if (chatMemberEntity == null) continue;
@@ -68,10 +66,12 @@ public class ChatRoomService {
             String lastMessageText = (lastMessage != null) ? lastMessage.getMessage() : null;
             String lastMessageTime = (lastMessage != null) ? lastMessage.getCreatedAt().toString() : null;
 
-            chatRoomThumbnailDtoList.add(new ChatRoomThumbnailDto(chatRoomEntity.getId(), chatRoomEntity.getName(), chatRoomEntity.getChatMemberList().size(), chatRoomEntity.getRegionId(), unreadCount, lastMessageText, lastMessageTime));
+            chatRoom.setLastMessage(lastMessageText);
+            chatRoom.setLastMessageCreatedAt(lastMessageTime);
+            chatRoom.setUnreadCnt(unreadCount);
         }
 
-        return chatRoomThumbnailDtoList;
+        return chatRoomList;
     }
 
     public List<ChatRoomThumbnailDto> getUnJoinedChatRoomList(Long userId, Long regionId) {

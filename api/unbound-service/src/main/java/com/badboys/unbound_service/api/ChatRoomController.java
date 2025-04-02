@@ -73,8 +73,7 @@ public class ChatRoomController {
 
     @Operation(summary = "채팅방 정보 업데이트", description = "채팅방 정보 수정")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "업데이트 성공",
-                    content = @Content(schema = @Schema(implementation = ResponseMainInfoDto.class))),
+            @ApiResponse(responseCode = "200", description = "업데이트 성공"),
             @ApiResponse(responseCode = "404", description = "채팅방을 찾을 수 없음",
                     content = @Content(schema = @Schema(example = "{\"message\": \"채팅방을 찾을 수 없습니다.\"}"))),
             @ApiResponse(responseCode = "500", description = "서버에러",
@@ -97,8 +96,7 @@ public class ChatRoomController {
 
     @Operation(summary = "채팅방 나가기", description = "채팅방 나가기")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "나가기 성공",
-                    content = @Content(schema = @Schema(implementation = ResponseMainInfoDto.class))),
+            @ApiResponse(responseCode = "200", description = "나가기 성공"),
             @ApiResponse(responseCode = "404", description = "채팅방을 찾을 수 없음",
                     content = @Content(schema = @Schema(example = "{\"message\": \"채팅방을 찾을 수 없습니다.\"}"))),
             @ApiResponse(responseCode = "500", description = "서버에러",
@@ -121,8 +119,7 @@ public class ChatRoomController {
 
     @Operation(summary = "채팅방 참여", description = "초대받은 채팅방 참여")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "참여 성공",
-                    content = @Content(schema = @Schema(implementation = ResponseMainInfoDto.class))),
+            @ApiResponse(responseCode = "200", description = "참여 성공"),
             @ApiResponse(responseCode = "404", description = "채팅방을 찾을 수 없음",
                     content = @Content(schema = @Schema(example = "{\"message\": \"채팅방을 찾을 수 없습니다.\"}"))),
             @ApiResponse(responseCode = "500", description = "서버에러",

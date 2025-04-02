@@ -15,6 +15,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
@@ -104,23 +106,24 @@ public class MatchService {
         }
     }
 
-    public ResponseMainInfoDto getMainMatchHistoryList(UserInfoDto userInfoDto) {
+    public List<MatchHistoryDto> getUserMatchHistoryList(Long userId) {
 
-        Page<MatchInfoEntity> userMatchInfoEntityList = matchInfoRepository.findByUserId(userInfoDto.getUserId(), PageRequest.of(0, 5));
+        Page<MatchInfoEntity> userMatchInfoEntityList = matchInfoRepository.findByUserId(userId, PageRequest.of(0, 5));
         List<MatchHistoryDto> userMatchHistoryList = userMatchInfoEntityList.stream()
                 .map(this::convertToMatchHistoryDto)
                 .collect(Collectors.toList());
 
-        Page<MatchInfoEntity> regionMatchInfoEntityList = matchInfoRepository.findByRegionId(userInfoDto.getUserId(), PageRequest.of(0, 5));
+        return userMatchHistoryList;
+    }
+
+    public List<MatchHistoryDto> getRegionMatchHistoryList(Long regionId) {
+
+        Page<MatchInfoEntity> regionMatchInfoEntityList = matchInfoRepository.findByRegionId(regionId, PageRequest.of(0, 5));
         List<MatchHistoryDto> regionMatchHistoryList = regionMatchInfoEntityList.stream()
                 .map(this::convertToMatchHistoryDto)
                 .collect(Collectors.toList());
 
-        ResponseMainInfoDto responseMainInfoDto = new ResponseMainInfoDto();
-        responseMainInfoDto.setUserMatchHistoryList(userMatchHistoryList);
-        responseMainInfoDto.setRegionMatchHistoryList(regionMatchHistoryList);
-
-        return responseMainInfoDto;
+        return regionMatchHistoryList;
     }
 
     private MatchHistoryDto convertToMatchHistoryDto(MatchInfoEntity matchHistory) {
