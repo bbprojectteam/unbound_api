@@ -32,4 +32,25 @@ public class ChatRoomInfo {
 
     @Schema(description = "메모, 추가정보, 기타사항", example = "늦으면 벌금")
     private String description;
+
+    @Schema(description = "3대3여부", example = "CHAR(1) DEFAULT 'Y'")
+    private String threeOnThreeYn;
+
+    @Schema(description = "공보유여부", example = "Y")
+    private String ballYn;
+
+    @Schema(description = "심판여부", example = "Y")
+    private String refereeYn;
+
+    @Schema(description = "골대여부", example = "Y")
+    private String backBoardYn;
+
+    @Schema(description = "3점제한여부", example = "Y")
+    private String threePointLimitYn;
+
+    @Schema(description = "반코트여부", example = "Y")
+    private String halfCourtYn;
+
+    @Schema(description = "라커룸 참여 여부", example = "Y")
+    private String joinedYn;
 }

@@ -1,6 +1,7 @@
 package com.badboys.unbound_service.api.repository;
 
 import com.badboys.unbound_service.entity.ChatRoomEntity;
+import com.badboys.unbound_service.model.ChatRoomInfo;
 import com.badboys.unbound_service.model.ChatRoomThumbnailDto;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,7 +14,34 @@ import java.util.List;
 public interface ChatRoomRepository extends JpaRepository<ChatRoomEntity, Long> {
 
     @Query("""
-        SELECT new com.badboys.unbound_service.model.ChatRoomThumbnailDto(cr.id, cr.name, SIZE(cr.chatMemberList), cr.regionId, AVG(u.mmr))
+                SELECT new com.badboys.unbound_service.model.ChatRoomInfo(
+                    cr.id, 
+                    cr.name,  
+                    cr.regionId, 
+                    cr.matchDt,
+                    cr.location,
+                    cr.description,
+                    cr.threeOnThreeYn,
+                    cr.ballYn,
+                    cr.refereeYn,
+                    cr.backBoardYn,
+                    cr.threePointLimitYn,
+                    cr.halfCourtYn,
+                    CASE
+                      WHEN (cm.id IS NULL) THEN 'N'
+                      ELSE 'Y'
+                    END
+                )
+                FROM ChatRoomEntity cr
+                LEFT JOIN ChatMemberEntity cm ON cm.chatRoom.id = cr.id AND cm.user.id = :userId
+                WHERE cr.id = :chatRoomId
+            """)
+    ChatRoomInfo findChatRoomInfo(
+            @Param("userId") Long userId
+    );
+
+    @Query("""
+        SELECT new com.badboys.unbound_service.model.ChatRoomThumbnailDto(cr.id, cr.name, SIZE(cr.chatMemberList), cr.regionId, cr.matchDt, AVG(u.mmr))
         FROM ChatRoomEntity cr
         JOIN cr.chatMemberList cm
         JOIN cm.user u
@@ -30,7 +58,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoomEntity, Long> 
     );
 
     @Query("""
-        SELECT new com.badboys.unbound_service.model.ChatRoomThumbnailDto(cr.id, cr.name, SIZE(cr.chatMemberList), cr.regionId, AVG(u.mmr))
+        SELECT new com.badboys.unbound_service.model.ChatRoomThumbnailDto(cr.id, cr.name, SIZE(cr.chatMemberList), cr.regionId, cr.matchDt, AVG(u.mmr))
         FROM ChatRoomEntity cr
         JOIN cr.chatMemberList cm
         JOIN cm.user u

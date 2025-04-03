@@ -23,6 +23,9 @@ public class ChatRoomThumbnailDto {
     @Schema(description = "지역 아이디", example = "1")
     private Long regionId;
 
+    @Schema(description = "경기일시", example = "2025-01-01 12:00")
+    private String matchDt;
+
     @Schema(description = "멤버 평균 mmr", example = "1255")
     private Double averageMmr;
 
@@ -35,11 +38,12 @@ public class ChatRoomThumbnailDto {
     @Schema(description = "마지막 메시지 생성 시간", example = "2025-02-18T15:30:00Z")
     private String lastMessageCreatedAt;
 
-    public ChatRoomThumbnailDto(Long chatRoomId, String name, int memberCnt, Long regionId, Double averageMmr) {
+    public ChatRoomThumbnailDto(Long chatRoomId, String name, int memberCnt, Long regionId, String matchDt, Double averageMmr) {
         this.chatRoomId = chatRoomId;
         this.name = name;
         this.memberCnt = memberCnt;
         this.regionId = regionId;
+        this.matchDt = matchDt;
         this.averageMmr = averageMmr;
         this.unreadCnt = 0;
         this.lastMessage = "";

@@ -29,7 +29,7 @@ public class TeamEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String score;
+    private int score;
 
     private MatchResultType result;
 
@@ -45,4 +45,12 @@ public class TeamEntity {
     )
     @Builder.Default
     private Set<UserEntity> userList = new HashSet<>();
+
+    public void updateScore(int score) {
+        this.score = score;
+    }
+
+    public void updateResult(MatchResultType result) {
+        this.result = result;
+    }
 }

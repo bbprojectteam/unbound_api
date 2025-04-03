@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @Schema(description = "매치 기록 DTO")
-public class MatchHistoryDto {
+public class MatchInfoDto {
 
     @Schema(description = "매치 ID", example = "101")
     private Long matchId;

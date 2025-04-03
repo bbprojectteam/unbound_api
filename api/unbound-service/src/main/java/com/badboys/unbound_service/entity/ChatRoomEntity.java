@@ -50,8 +50,8 @@ public class ChatRoomEntity {
     @Column(name = "ballYn", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     private String ballYn;
 
-    @Column(name = "refreeYn", columnDefinition = "CHAR(1) DEFAULT 'N'")
-    private String refreeYn;
+    @Column(name = "refereeYn", columnDefinition = "CHAR(1) DEFAULT 'N'")
+    private String refereeYn;
 
     @Column(name = "backBoardYn", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     private String backBoardYn;

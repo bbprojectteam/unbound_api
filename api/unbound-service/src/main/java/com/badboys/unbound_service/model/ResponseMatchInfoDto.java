@@ -12,7 +12,7 @@ import java.util.List;
 public class ResponseMatchInfoDto {
 
     @Schema(description = "매치 기록 정보")
-    private MatchHistoryDto matchInfo;
+    private MatchInfoDto matchInfo;
 
     @Schema(description = "매치에 달린 댓글 리스트")
     private List<CommentDto> commentList;

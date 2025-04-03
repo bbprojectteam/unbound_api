@@ -2,7 +2,7 @@ package com.badboys.unbound_service.api;
 
 import com.badboys.unbound_service.api.service.MatchService;
 import com.badboys.unbound_service.api.service.UserService;
-import com.badboys.unbound_service.model.MatchHistoryDto;
+import com.badboys.unbound_service.model.MatchInfoDto;
 import com.badboys.unbound_service.model.RequestUpdateUserDto;
 import com.badboys.unbound_service.model.ResponseUserInfoDto;
 import com.badboys.unbound_service.model.UserInfoDto;
@@ -42,9 +42,9 @@ public class UserController {
 
         try {
             UserInfoDto userInfoDto = userService.getUserInfo(Long.valueOf(userId));
-            List<MatchHistoryDto> matchHistoryDtoList = matchService.getUserMatchHistoryList(Long.valueOf(userId));
+            List<MatchInfoDto> matchInfoDtoList = matchService.getUserMatchInfoList(Long.valueOf(userId));
 
-            ResponseUserInfoDto responseUserInfoDto = new ResponseUserInfoDto(userInfoDto, matchHistoryDtoList);
+            ResponseUserInfoDto responseUserInfoDto = new ResponseUserInfoDto(userInfoDto, matchInfoDtoList);
 
             return ResponseEntity.ok(responseUserInfoDto);
         } catch(IllegalArgumentException e) {
@@ -94,9 +94,9 @@ public class UserController {
 
         try {
             UserInfoDto userInfoDto = userService.getUserInfo(Long.valueOf(targetUserId));
-            List<MatchHistoryDto> matchHistoryDtoList = matchService.getUserMatchHistoryList(Long.valueOf(targetUserId));
+            List<MatchInfoDto> matchInfoDtoList = matchService.getUserMatchInfoList(Long.valueOf(targetUserId));
 
-            ResponseUserInfoDto responseUserInfoDto = new ResponseUserInfoDto(userInfoDto, matchHistoryDtoList);
+            ResponseUserInfoDto responseUserInfoDto = new ResponseUserInfoDto(userInfoDto, matchInfoDtoList);
 
             return ResponseEntity.ok(responseUserInfoDto);
         } catch(IllegalArgumentException e) {

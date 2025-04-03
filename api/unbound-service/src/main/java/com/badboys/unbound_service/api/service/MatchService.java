@@ -2,25 +2,22 @@ package com.badboys.unbound_service.api.service;
 
 import com.badboys.unbound_service.api.repository.CommentRepository;
 import com.badboys.unbound_service.api.repository.MatchInfoRepository;
+import com.badboys.unbound_service.api.repository.TeamRepository;
 import com.badboys.unbound_service.api.repository.UserRepository;
-import com.badboys.unbound_service.entity.CommentEntity;
-import com.badboys.unbound_service.entity.MatchInfoEntity;
-import com.badboys.unbound_service.entity.TeamEntity;
-import com.badboys.unbound_service.entity.UserEntity;
+import com.badboys.unbound_service.entity.*;
 import com.badboys.unbound_service.model.*;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -34,16 +31,18 @@ public class MatchService {
     private final UserRepository userRepository;
     private final MatchInfoRepository matchInfoRepository;
     private final CommentRepository commentRepository;
+    private final TeamRepository teamRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    public MatchService(UserService userService, RegionService regionService, UserRepository userRepository, MatchInfoRepository matchInfoRepository, CommentRepository commentRepository, KafkaTemplate<String, Object> kafkaTemplate, RedisTemplate<String, Object> redisTemplate) {
+    public MatchService(UserService userService, RegionService regionService, UserRepository userRepository, MatchInfoRepository matchInfoRepository, CommentRepository commentRepository, TeamRepository teamRepository, KafkaTemplate<String, Object> kafkaTemplate, RedisTemplate<String, Object> redisTemplate) {
         this.userService = userService;
         this.regionService = regionService;
         this.userRepository = userRepository;
         this.matchInfoRepository = matchInfoRepository;
         this.commentRepository = commentRepository;
+        this.teamRepository = teamRepository;
         this.kafkaTemplate = kafkaTemplate;
         this.redisTemplate = redisTemplate;
     }
@@ -106,34 +105,34 @@ public class MatchService {
         }
     }
 
-    public List<MatchHistoryDto> getUserMatchHistoryList(Long userId) {
+    public List<MatchInfoDto> getUserMatchInfoList(Long userId) {
 
         Page<MatchInfoEntity> userMatchInfoEntityList = matchInfoRepository.findByUserId(userId, PageRequest.of(0, 5));
-        List<MatchHistoryDto> userMatchHistoryList = userMatchInfoEntityList.stream()
-                .map(this::convertToMatchHistoryDto)
+        List<MatchInfoDto> userMatchInfoList = userMatchInfoEntityList.stream()
+                .map(this::convertToMatchInfoDto)
                 .collect(Collectors.toList());
 
-        return userMatchHistoryList;
+        return userMatchInfoList;
     }
 
-    public List<MatchHistoryDto> getRegionMatchHistoryList(Long regionId) {
+    public List<MatchInfoDto> getRegionMatchInfoList(Long regionId) {
 
         Page<MatchInfoEntity> regionMatchInfoEntityList = matchInfoRepository.findByRegionId(regionId, PageRequest.of(0, 5));
-        List<MatchHistoryDto> regionMatchHistoryList = regionMatchInfoEntityList.stream()
-                .map(this::convertToMatchHistoryDto)
+        List<MatchInfoDto> regionMatchInfoList = regionMatchInfoEntityList.stream()
+                .map(this::convertToMatchInfoDto)
                 .collect(Collectors.toList());
 
-        return regionMatchHistoryList;
+        return regionMatchInfoList;
     }
 
-    private MatchHistoryDto convertToMatchHistoryDto(MatchInfoEntity matchHistory) {
-        List<TeamInfoDto> teamList = convertToTeamInfoDto(matchHistory.getTeamList());
+    private MatchInfoDto convertToMatchInfoDto(MatchInfoEntity matchInfo) {
+        List<TeamInfoDto> teamList = convertToTeamInfoDto(matchInfo.getTeamList());
 
-        return new MatchHistoryDto(
-                matchHistory.getId(),
-                matchHistory.getStartAt(),
-                matchHistory.getEndAt(),
-                matchHistory.getRegion().getId(),
+        return new MatchInfoDto(
+                matchInfo.getId(),
+                matchInfo.getStartAt(),
+                matchInfo.getEndAt(),
+                matchInfo.getRegion().getId(),
                 teamList
         );
     }
@@ -147,11 +146,11 @@ public class MatchService {
                 .collect(Collectors.toList());
     }
 
-    public ResponseMatchInfoDto getMatchHistoryInfo(Long matchInfoId) {
+    public ResponseMatchInfoDto getMatchInfo(Long matchInfoId) {
 
         MatchInfoEntity matchInfoEntity = matchInfoRepository.findById(matchInfoId)
                 .orElseThrow(() -> new IllegalArgumentException("경기 정보 없음"));;
-        MatchHistoryDto matchHistoryDto = convertToMatchHistoryDto(matchInfoEntity);
+        MatchInfoDto matchInfoDto = convertToMatchInfoDto(matchInfoEntity);
 
         List<CommentEntity> commentEntityList = matchInfoEntity.getCommentList().stream()
                 .filter(comment -> comment.getDepth() == 0)
@@ -164,7 +163,7 @@ public class MatchService {
                 commentList.add(commetDto);
             }
         }
-        return new ResponseMatchInfoDto(matchHistoryDto, commentList);
+        return new ResponseMatchInfoDto(matchInfoDto, commentList);
     }
 
     private CommentDto convertToCommentDto(Map<Long, String> userMap, CommentEntity commentEntity) {
@@ -234,5 +233,66 @@ public class MatchService {
         }
     }
 
+    @Transactional
+    public MatchInfoDto startGame(RequestGameStartDto requestGameStartDto) {
 
+        RegionEntity regionEntity = regionService.getRegion(requestGameStartDto.getRegionId());
+
+        MatchInfoEntity matchInfo = MatchInfoEntity.builder()
+                .startAt(LocalDateTime.now())
+                .region(regionEntity)
+                .build();
+
+        List<UserEntity> aTeamUsers = userRepository.findAllById(requestGameStartDto.getATeamIdList());
+        List<UserEntity> bTeamUsers = userRepository.findAllById(requestGameStartDto.getBTeamIdList());
+
+        TeamEntity aTeam = TeamEntity.builder()
+                .userList(new HashSet<>(aTeamUsers))
+                .result(null)
+                .matchInfo(matchInfo)
+                .build();
+
+        TeamEntity bTeam = TeamEntity.builder()
+                .userList(new HashSet<>(bTeamUsers))
+                .result(null)
+                .matchInfo(matchInfo)
+                .build();
+
+        matchInfo.getTeamList().add(aTeam);
+        matchInfo.getTeamList().add(bTeam);
+
+        matchInfoRepository.save(matchInfo);
+
+        MatchInfoEntity matchInfoEntity = matchInfoRepository.findById(matchInfo.getId())
+                .orElseThrow(() -> new IllegalArgumentException("경기 정보 없음"));;
+        MatchInfoDto matchInfoDto = convertToMatchInfoDto(matchInfoEntity);
+
+        return matchInfoDto;
+    }
+
+    @Transactional
+    public void endGame(RequestGameEndDto dto) {
+
+        MatchInfoEntity matchInfo = matchInfoRepository.findById(dto.getMatchInfoId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매치입니다"));
+
+        TeamEntity aTeam = teamRepository.findById(dto.getATeamResult().getTeamId())
+                .orElseThrow(() -> new IllegalArgumentException("A팀이 존재하지 않습니다"));
+
+        TeamEntity bTeam = teamRepository.findById(dto.getBTeamResult().getTeamId())
+                .orElseThrow(() -> new IllegalArgumentException("B팀이 존재하지 않습니다"));
+
+        aTeam.updateScore(dto.getATeamResult().getScore());
+        bTeam.updateScore(dto.getATeamResult().getScore());
+
+        if (aTeam.getId().equals(dto.getWinnerTeamId())) {
+            aTeam.updateResult(MatchResultType.WIN);
+            bTeam.updateResult(MatchResultType.LOSE);
+        } else {
+            aTeam.updateResult(MatchResultType.LOSE);
+            bTeam.updateResult(MatchResultType.WIN);
+        }
+
+        matchInfo.updateEndAt(LocalDateTime.now());
+    }
 }

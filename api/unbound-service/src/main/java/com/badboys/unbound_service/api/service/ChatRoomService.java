@@ -85,10 +85,8 @@ public class ChatRoomService {
 
         ResponseChatRoomInfoDto responseDto = new ResponseChatRoomInfoDto();
 
-        ChatRoomEntity chatRoomEntity = getChatRoomEntity(chatRoomId);
-        ChatRoomInfo chatRoomInfo = modelMapper.map(chatRoomEntity, ChatRoomInfo.class);
-
-        List<ChatMemberDto> memberList = chatMemberRepository.findChatMembersByChatRoomIdExcludingUser(userId, chatRoomId);
+        ChatRoomInfo chatRoomInfo = chatRoomRepository.findChatRoomInfo(chatRoomId);
+        List<ChatMemberDto> memberList = chatMemberRepository.findChatMembersByChatRoomId(chatRoomId);
 
         responseDto.setChatRoomInfo(chatRoomInfo);
         responseDto.setMemberList(memberList);

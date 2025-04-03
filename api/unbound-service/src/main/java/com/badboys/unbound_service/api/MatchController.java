@@ -1,9 +1,7 @@
 package com.badboys.unbound_service.api;
 
 import com.badboys.unbound_service.api.service.MatchService;
-import com.badboys.unbound_service.model.RequestMatchStartDto;
-import com.badboys.unbound_service.model.RequestUpdateCommentDto;
-import com.badboys.unbound_service.model.ResponseMatchInfoDto;
+import com.badboys.unbound_service.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -92,7 +90,7 @@ public class MatchController {
     public ResponseEntity<?> getMatchInfo(@RequestHeader("X-User-Id") String userId, @RequestParam Long matchInfoId) {
 
         try {
-            ResponseMatchInfoDto responseMatchInfoDto = matchService.getMatchHistoryInfo(matchInfoId);
+            ResponseMatchInfoDto responseMatchInfoDto = matchService.getMatchInfo(matchInfoId);
             return ResponseEntity.ok(responseMatchInfoDto);
         } catch(IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "매치정보 없음"));
@@ -117,6 +115,44 @@ public class MatchController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Map.of("message", "매치정보 없음"));
         }catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("message", "서버 에러"));
+        }
+    }
+
+    @Operation(summary = "경기 시작", description = "경기 시작")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "경기 시작"),
+            @ApiResponse(responseCode = "500", description = "서버 에러")
+    })
+    @PostMapping("/game/start")
+    public ResponseEntity<?> gameStart(@RequestHeader("X-User-Id") String userId, @RequestBody RequestGameStartDto requestGameStartDto) {
+
+        try {
+            MatchInfoDto matchInfoDto = matchService.startGame(requestGameStartDto);
+            return ResponseEntity.ok(matchInfoDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", "서버 에러"));
+        }
+    }
+
+    @Operation(summary = "경기 종료", description = "경기 결과를 저장합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "경기 종료 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 에러")
+    })
+    @PostMapping("/game/end")
+    public ResponseEntity<Map<String, Object>> gameEnd(@RequestHeader("X-User-Id") String userId, @RequestBody RequestGameEndDto requestGameEndDto) {
+
+        try {
+            matchService.endGame(requestGameEndDto);
+
+            return ResponseEntity.ok(Map.of("message", "경기 종료 처리 완료", "matchInfoId", requestGameEndDto.getMatchInfoId()));
+        } catch (IllegalArgumentException e) {
+            // 잘못된 요청 처리 (예: 존재하지 않는 팀/매치 등)
+            return ResponseEntity.badRequest().body(Map.of("message", "요청이 잘못되었습니다", "error", e.getMessage()));
+        } catch (Exception e) {
+            // 예상하지 못한 서버 에러
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "서버 에러", "error", e.getMessage()));
         }
     }
 }

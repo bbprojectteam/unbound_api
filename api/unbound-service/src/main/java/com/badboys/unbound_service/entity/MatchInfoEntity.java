@@ -18,9 +18,9 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Table(
-        name = "match_history",
+        name = "match_info",
         indexes = {
-                @Index(name = "idx_history_id", columnList = "id")
+                @Index(name = "idx_info_id", columnList = "id")
         }
 )
 public class MatchInfoEntity {
@@ -44,4 +44,8 @@ public class MatchInfoEntity {
     @ManyToOne(fetch = FetchType.LAZY) // 다대일 관계
     @JoinColumn(name = "regionId") // 외래 키 설정
     private RegionEntity region;
+
+    public void updateEndAt(LocalDateTime endAt) {
+        this.endAt = endAt;
+    }
 }
