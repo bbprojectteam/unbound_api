@@ -85,7 +85,7 @@ public class ChatRoomService {
 
         ResponseChatRoomInfoDto responseDto = new ResponseChatRoomInfoDto();
 
-        ChatRoomInfo chatRoomInfo = chatRoomRepository.findChatRoomInfo(chatRoomId);
+        ChatRoomInfo chatRoomInfo = chatRoomRepository.findChatRoomInfo(userId, chatRoomId);
         List<ChatMemberDto> memberList = chatMemberRepository.findChatMembersByChatRoomId(chatRoomId);
 
         responseDto.setChatRoomInfo(chatRoomInfo);

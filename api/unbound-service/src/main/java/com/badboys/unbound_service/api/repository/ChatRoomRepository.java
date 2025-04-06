@@ -37,7 +37,8 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoomEntity, Long> 
                 WHERE cr.id = :chatRoomId
             """)
     ChatRoomInfo findChatRoomInfo(
-            @Param("userId") Long userId
+            @Param("userId") Long userId,
+            @Param("chatRoomId") Long chatRoomId
     );
 
     @Query("""

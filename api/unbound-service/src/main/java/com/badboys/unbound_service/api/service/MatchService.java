@@ -283,7 +283,7 @@ public class MatchService {
                 .orElseThrow(() -> new IllegalArgumentException("B팀이 존재하지 않습니다"));
 
         aTeam.updateScore(dto.getATeamResult().getScore());
-        bTeam.updateScore(dto.getATeamResult().getScore());
+        bTeam.updateScore(dto.getBTeamResult().getScore());
 
         if (aTeam.getId().equals(dto.getWinnerTeamId())) {
             aTeam.updateResult(MatchResultType.WIN);

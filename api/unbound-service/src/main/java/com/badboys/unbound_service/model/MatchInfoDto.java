@@ -13,7 +13,7 @@ import java.util.List;
 public class MatchInfoDto {
 
     @Schema(description = "매치 ID", example = "101")
-    private Long matchId;
+    private Long matchInfoId;
 
     @Schema(description = "매치 시작 시간", example = "2025-02-08T15:00:00")
     private LocalDateTime startAt;
