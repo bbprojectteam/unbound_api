@@ -234,7 +234,7 @@ public class MatchService {
     }
 
     @Transactional
-    public MatchInfoDto startGame(RequestGameStartDto requestGameStartDto) {
+    public ResponseGameStartDto startGame(RequestGameStartDto requestGameStartDto) {
 
         RegionEntity regionEntity = regionService.getRegion(requestGameStartDto.getRegionId());
 
@@ -264,10 +264,10 @@ public class MatchService {
         matchInfoRepository.save(matchInfo);
 
         MatchInfoEntity matchInfoEntity = matchInfoRepository.findById(matchInfo.getId())
-                .orElseThrow(() -> new IllegalArgumentException("경기 정보 없음"));;
-        MatchInfoDto matchInfoDto = convertToMatchInfoDto(matchInfoEntity);
+                .orElseThrow(() -> new IllegalArgumentException("경기 정보 없음"));
 
-        return matchInfoDto;
+        ResponseGameStartDto responseGameStartDto = new ResponseGameStartDto(matchInfoEntity.getId(), aTeam.getId(), bTeam.getId());
+        return responseGameStartDto;
     }
 
     @Transactional
@@ -282,16 +282,8 @@ public class MatchService {
         TeamEntity bTeam = teamRepository.findById(dto.getBTeamResult().getTeamId())
                 .orElseThrow(() -> new IllegalArgumentException("B팀이 존재하지 않습니다"));
 
-        aTeam.updateScore(dto.getATeamResult().getScore());
-        bTeam.updateScore(dto.getBTeamResult().getScore());
-
-        if (aTeam.getId().equals(dto.getWinnerTeamId())) {
-            aTeam.updateResult(MatchResultType.WIN);
-            bTeam.updateResult(MatchResultType.LOSE);
-        } else {
-            aTeam.updateResult(MatchResultType.LOSE);
-            bTeam.updateResult(MatchResultType.WIN);
-        }
+        aTeam.updateResult(dto.getATeamResult().getScore(), dto.getATeamResult().getResult());
+        bTeam.updateResult(dto.getBTeamResult().getScore(), dto.getBTeamResult().getResult());
 
         matchInfo.updateEndAt(LocalDateTime.now());
     }

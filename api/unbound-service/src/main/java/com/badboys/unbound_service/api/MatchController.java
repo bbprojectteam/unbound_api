@@ -127,8 +127,8 @@ public class MatchController {
     public ResponseEntity<?> gameStart(@RequestHeader("X-User-Id") String userId, @RequestBody RequestGameStartDto requestGameStartDto) {
 
         try {
-            MatchInfoDto matchInfoDto = matchService.startGame(requestGameStartDto);
-            return ResponseEntity.ok(matchInfoDto);
+            ResponseGameStartDto responseGameStartDto = matchService.startGame(requestGameStartDto);
+            return ResponseEntity.ok(responseGameStartDto);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("message", "서버 에러"));
         }

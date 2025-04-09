@@ -13,4 +13,7 @@ public class TeamResultDto {
 
     @Schema(description = "점수", example = "2")
     private int score;
+
+    @Schema(description = "결과", example = "WIN")
+    private MatchResultType result;
 }

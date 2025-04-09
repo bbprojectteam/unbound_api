@@ -16,7 +16,4 @@ public class RequestGameEndDto {
 
     @Schema(description = "b팀 결과")
     private TeamResultDto bTeamResult;
-
-    @Schema(description = "승리팀 아이디")
-    private Long winnerTeamId;
 }

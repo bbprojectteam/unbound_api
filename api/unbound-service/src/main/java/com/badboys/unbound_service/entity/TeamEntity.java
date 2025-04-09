@@ -46,11 +46,8 @@ public class TeamEntity {
     @Builder.Default
     private Set<UserEntity> userList = new HashSet<>();
 
-    public void updateScore(int score) {
+    public void updateResult(int score, MatchResultType result) {
         this.score = score;
-    }
-
-    public void updateResult(MatchResultType result) {
         this.result = result;
     }
 }
