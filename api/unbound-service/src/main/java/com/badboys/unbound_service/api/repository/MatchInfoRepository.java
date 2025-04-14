@@ -14,12 +14,12 @@ public interface MatchInfoRepository extends JpaRepository<MatchInfoEntity, Long
 
     @EntityGraph(attributePaths = {"teamList", "teamList.userList"})
     @Query("SELECT m FROM MatchInfoEntity m " +
-            "WHERE EXISTS (SELECT 1 FROM TeamEntity t JOIN t.userList u WHERE t.matchInfo = m AND u.id = :userId) " +
+            "WHERE EXISTS (SELECT 1 FROM TeamEntity t JOIN t.userList u WHERE t.matchInfo = m AND u.id = :userId) AND m.endAt IS NOT NULL " +
             "ORDER BY m.id DESC")
     Page<MatchInfoEntity> findByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT m FROM MatchInfoEntity m " +
-            "WHERE m.region.id = :regionId " +
+            "WHERE m.region.id = :regionId AND m.endAt IS NOT NULL " +
             "ORDER BY m.id DESC")
     Page<MatchInfoEntity> findByRegionId(@Param("regionId") Long regionId, Pageable pageable);
 

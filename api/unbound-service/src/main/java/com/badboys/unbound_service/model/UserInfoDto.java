@@ -22,6 +22,9 @@ public class UserInfoDto {
     @Schema(description = "유저 MMR 점수", example = "1000")
     private int mmr;
 
+    @Schema(description = "유저 경기 수 ", example = "1000")
+    private int matchCnt;
+
     @Schema(description = "자기소개", example = "익산사는 Alice입니다.")
     private String introduction;
 

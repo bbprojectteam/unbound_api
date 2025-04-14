@@ -110,6 +110,15 @@ public class MatchService {
         Page<MatchInfoEntity> userMatchInfoEntityList = matchInfoRepository.findByUserId(userId, PageRequest.of(0, 5));
         List<MatchInfoDto> userMatchInfoList = userMatchInfoEntityList.stream()
                 .map(this::convertToMatchInfoDto)
+                .peek(match -> {
+                    match.getTeamList().stream()
+                            .filter(team -> team.getUserList().stream().anyMatch(user -> user.getUserId().equals(userId)))
+                            .findFirst()
+                            .ifPresent(myTeam -> {
+                                match.getTeamList().remove(myTeam);
+                                match.getTeamList().add(0, myTeam);
+                            });
+                })
                 .collect(Collectors.toList());
 
         return userMatchInfoList;

@@ -39,6 +39,8 @@ public class UserService {
     public UserInfoDto getUserInfo(Long userId) {
         UserEntity userEntity = getUserEntity(userId);
         UserInfoDto userInfoDto = modelMapper.map(userEntity, UserInfoDto.class);
+        int matchCnt = userRepository.countUserMatchHistory(userId);
+        userInfoDto.setMatchCnt(matchCnt);
         RegionEntity regionEntity = userEntity.getRegion();
         Long regionId = regionEntity.getId();
         List<RegionEntity> regionEntityList = regionService.getAllParents(regionId);
