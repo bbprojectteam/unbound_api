@@ -54,6 +54,10 @@ public class UserEntity {
     @JoinColumn(name = "regionId") // 외래 키 설정
     private RegionEntity region;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CommentEntity> commentList = new ArrayList<>();
+
     @BatchSize(size = 10)
     @ManyToMany(mappedBy = "userList")
     private List<TeamEntity> teamList;

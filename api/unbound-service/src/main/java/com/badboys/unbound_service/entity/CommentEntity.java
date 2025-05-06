@@ -25,13 +25,14 @@ public class CommentEntity {
     private MatchInfoEntity matchInfo;
 
     @Column(nullable = false)
-    private Long userId;  // 댓글 작성자 ID
-
-    @Column(nullable = false)
     private String content;  // 댓글 내용
 
     @Column(nullable = false)
     private int depth;  // 댓글 깊이 (대댓글 여부)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId")
+    private UserEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")

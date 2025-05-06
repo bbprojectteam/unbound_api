@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -161,60 +162,30 @@ public class MatchService {
                 .orElseThrow(() -> new IllegalArgumentException("경기 정보 없음"));;
         MatchInfoDto matchInfoDto = convertToMatchInfoDto(matchInfoEntity);
 
-        List<CommentEntity> commentEntityList = matchInfoEntity.getCommentList().stream()
-                .filter(comment -> comment.getDepth() == 0)
-                .collect(Collectors.toList());
-        Map<Long, String> userMap = preloadUsernames(commentEntityList);
-        List<CommentDto> commentList = new ArrayList<>();
-        for (CommentEntity commentEntity : commentEntityList) {
-            CommentDto commetDto = convertToCommentDto(userMap, commentEntity);
-            if (commetDto != null) {
-                commentList.add(commetDto);
-            }
-        }
-        return new ResponseMatchInfoDto(matchInfoDto, commentList);
+        List<CommentDto> flatCommentList = commentRepository.findAllByMatchInfoWithUser(matchInfoId);
+
+        List<CommentDto> commentTree = buildCommentTree(flatCommentList);
+        return new ResponseMatchInfoDto(matchInfoDto, commentTree);
     }
 
-    private CommentDto convertToCommentDto(Map<Long, String> userMap, CommentEntity commentEntity) {
+    public List<CommentDto> buildCommentTree(List<CommentDto> flatList) {
+        Map<Long, CommentDto> commentMap = flatList.stream()
+                .collect(Collectors.toMap(CommentDto::getCommentId, Function.identity()));
 
-        String username = userMap.get(commentEntity.getUserId());
-        if (username == null) return null;
+        List<CommentDto> rootList = new ArrayList<>();
 
-        CommentDto commentDto = new CommentDto();
-        commentDto.setCommentId(commentEntity.getId());
-        commentDto.setUserId(commentEntity.getUserId());
-        commentDto.setUsername(username);
-        commentDto.setDepth(commentEntity.getDepth());
-        commentDto.setUpdatedAt(commentEntity.getUpdatedAt());
-        commentDto.setContent(commentEntity.getContent());
-
-        if (commentEntity.getChildList() != null && !commentEntity.getChildList().isEmpty()) {
-            List<CommentDto> childDtoList = new ArrayList<>();
-            for (CommentEntity childEntity : commentEntity.getChildList()) {
-                CommentDto childDto = convertToCommentDto(userMap, childEntity);
-                if (childDto != null) {
-                    childDtoList.add(childDto);
+        for (CommentDto comment : flatList) {
+            if (comment.getParentId() == null || comment.getDepth() == 0) {
+                rootList.add(comment);
+            } else {
+                CommentDto parent = commentMap.get(comment.getParentId());
+                if (parent != null) {
+                    parent.getChildList().add(comment);
                 }
             }
-            commentDto.setChildList(childDtoList);
         }
 
-        return commentDto;
-    }
-
-    /**
-     * UserEntity 조회 캐싱 (N+1 문제 방지)
-     */
-    private Map<Long, String> preloadUsernames(List<CommentEntity> comments) {
-        List<Long> userIds = comments.stream()
-                .map(CommentEntity::getUserId)
-                .distinct()
-                .collect(Collectors.toList());
-
-        if (userIds.isEmpty()) return Collections.emptyMap();
-
-        return userRepository.findAllById(userIds).stream()
-                .collect(Collectors.toMap(UserEntity::getId, UserEntity::getUsername));
+        return rootList;
     }
 
     public void updateComment(Long userId, RequestUpdateCommentDto requestUpdateCommentDto) {
@@ -226,11 +197,15 @@ public class MatchService {
             commentRepository.save(currentCommentEntity);
         } else {        // 인서트
             MatchInfoEntity matchInfoEntity = matchInfoRepository.findById(requestUpdateCommentDto.getMatchInfoId())
-                    .orElseThrow(() -> new IllegalArgumentException("경기 정보 없음"));;
+                    .orElseThrow(() -> new IllegalArgumentException("경기 정보 없음"));
+
+            UserEntity userEntity = userRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다: " + userId));
+
             CommentEntity commentEntity = CommentEntity.builder()
                     .content(requestUpdateCommentDto.getContent())
                     .matchInfo(matchInfoEntity)
-                    .userId(userId)
+                    .user(userEntity)
                     .depth(0)
                     .build();
             if (requestUpdateCommentDto.getParentId() != null) {

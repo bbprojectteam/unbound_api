@@ -33,4 +33,7 @@ public class UserInfoDto {
 
     @Schema(description = "지역 ID", example = "1")
     private Long regionId;
+
+    @Schema(description = "생년월일", example = "1995-05-01")
+    private String birth;
 }
