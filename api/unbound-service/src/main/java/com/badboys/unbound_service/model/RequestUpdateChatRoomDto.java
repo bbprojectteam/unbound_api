@@ -1,6 +1,7 @@
 package com.badboys.unbound_service.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,4 +24,22 @@ public class RequestUpdateChatRoomDto {
 
     @Schema(description = "메모, 추가정보, 기타사항", example = "늦으면 벌금")
     private String description;
+
+    @Schema(description = "3대3 여부", example = "Y")
+    private String threeOnThreeYn;
+
+    @Schema(description = "농구공 유무", example = "Y")
+    private String ballYn;
+
+    @Schema(description = "심판 유무", example = "Y")
+    private String refereeYn;
+
+    @Schema(description = "백보드 유무", example = "Y")
+    private String backBoardYn;
+
+    @Schema(description = "3점 제한 여부", example = "Y")
+    private String threePointLimitYn;
+
+    @Schema(description = "반코트 여부", example = "Y")
+    private String halfCourtYn;
 }

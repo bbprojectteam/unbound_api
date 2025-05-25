@@ -67,11 +67,18 @@ public class ChatRoomEntity {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMemberEntity> chatMemberList = new ArrayList<>();
 
-    public void updateChatRoomInfo(String name, String location, String description, String matchDt) {
+    public void updateChatRoomInfo(String name, String location, String description, String matchDt, String threeOnThreeYn,
+                                   String ballYn, String refereeYn, String backBoardYn, String threePointLimitYn, String halfCourtYn) {
         this.name = (name != null) ? name : this.name;
         this.location = (location != null) ? location : this.location;
         this.description = (description != null) ? description : this.description;
         this.matchDt = (matchDt != null) ? matchDt : this.matchDt;
+        this.threeOnThreeYn = (threeOnThreeYn != null) ? threeOnThreeYn : this.threeOnThreeYn;
+        this.ballYn = (ballYn != null) ? ballYn : this.ballYn;
+        this.refereeYn = (refereeYn != null) ? refereeYn : this.refereeYn;
+        this.backBoardYn = (backBoardYn != null) ? backBoardYn : this.backBoardYn;
+        this.threePointLimitYn = (threePointLimitYn != null) ? threePointLimitYn : this.threePointLimitYn;
+        this.halfCourtYn = (halfCourtYn != null) ? halfCourtYn : this.halfCourtYn;
     }
 
     public void addChatMember(ChatMemberEntity member) {

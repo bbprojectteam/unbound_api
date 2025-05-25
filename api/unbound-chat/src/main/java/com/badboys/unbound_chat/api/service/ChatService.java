@@ -97,6 +97,7 @@ public class ChatService {
                 .chatRoomId(chatMessage.getChatRoomId())
                 .senderId(chatMessage.getSenderId())
                 .message(chatMessage.getMessage())
+                .imageUrl(chatMessage.getImageUrl())
                 .createdAt(LocalDateTime.now())
                 .build();
         chatMessageRepository.save(chatMessageDocument);

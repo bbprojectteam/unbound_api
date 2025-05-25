@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -174,4 +175,14 @@ public class ChatRoomController {
         List<MessageDto> messageList = chatRoomService.getRefreshMessages(Long.parseLong(userId), chatRoomId, lastMessageId);
         return ResponseEntity.ok(Map.of("messageList", messageList));
     }
+
+    @Operation(summary = "채팅 이미지 업로드", description = "채팅 메세지 목록")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
+    @GetMapping("/{chatRoomId}/uploadImage")
+    public ResponseEntity<?> uploadChatImage(@RequestHeader("X-User-Id") String userId, @PathVariable Long chatRoomId, @RequestPart(value = "profileImageFile") MultipartFile imageFile) {
+
+        String imageUrl = chatRoomService.uploadImage(imageFile);
+        return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
+    }
+
 }

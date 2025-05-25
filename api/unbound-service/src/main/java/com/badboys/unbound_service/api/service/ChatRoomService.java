@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -37,14 +38,17 @@ public class ChatRoomService {
 
     private final ChatMessageRepository chatMessageRepository;
 
+    private final S3Service s3Service;
+
     @Autowired
-    public ChatRoomService(UserService userService, RegionService regionService, ModelMapper modelMapper, ChatRoomRepository chatRoomRepository, ChatMemberRepository chatMemberRepository, ChatMessageRepository chatMessageRepository) {
+    public ChatRoomService(UserService userService, RegionService regionService, ModelMapper modelMapper, ChatRoomRepository chatRoomRepository, ChatMemberRepository chatMemberRepository, ChatMessageRepository chatMessageRepository, S3Service s3Service) {
         this.userService = userService;
         this.regionService = regionService;
         this.modelMapper = modelMapper;
         this.chatRoomRepository = chatRoomRepository;
         this.chatMemberRepository = chatMemberRepository;
         this.chatMessageRepository = chatMessageRepository;
+        this.s3Service = s3Service;
     }
 
     public List<ChatRoomThumbnailDto> getJoinedChatRoomList(Long userId) {
@@ -192,7 +196,13 @@ public class ChatRoomService {
                 requestUpdateChatRoomDto.getName(),
                 requestUpdateChatRoomDto.getLocation(),
                 requestUpdateChatRoomDto.getDescription(),
-                requestUpdateChatRoomDto.getMatchDt()
+                requestUpdateChatRoomDto.getMatchDt(),
+                requestUpdateChatRoomDto.getThreeOnThreeYn(),
+                requestUpdateChatRoomDto.getBallYn(),
+                requestUpdateChatRoomDto.getRefereeYn(),
+                requestUpdateChatRoomDto.getBackBoardYn(),
+                requestUpdateChatRoomDto.getThreePointLimitYn(),
+                requestUpdateChatRoomDto.getHalfCourtYn()
         );
         chatRoomRepository.save(chatRoomEntity);
     }
@@ -238,4 +248,18 @@ public class ChatRoomService {
         return true;
     }
 
+    public String uploadImage(MultipartFile imageFile) {
+
+        String imageUrl = null;
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                imageUrl = s3Service.uploadFile(imageFile);
+            } catch (RuntimeException e) {
+                throw new RuntimeException("이미지 업로드 중 오류 발생", e);
+            }
+        }
+
+        return imageUrl;
+    }
 }

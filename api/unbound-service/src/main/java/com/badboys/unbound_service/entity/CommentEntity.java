@@ -30,6 +30,9 @@ public class CommentEntity {
     @Column(nullable = false)
     private int depth;  // 댓글 깊이 (대댓글 여부)
 
+    @Column(nullable = false)
+    private String useYn;  // 사용여부
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     private UserEntity user;
@@ -58,6 +61,11 @@ public class CommentEntity {
      */
     public void updateContent(String newContent) {
         this.content = newContent;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void deleteComment() {
+        this.useYn = "N";
         this.updatedAt = LocalDateTime.now();
     }
 

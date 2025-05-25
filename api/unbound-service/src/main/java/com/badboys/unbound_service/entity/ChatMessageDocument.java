@@ -25,5 +25,7 @@ public class ChatMessageDocument {
 
     private String message;
 
+    private String imageUrl;
+
     private LocalDateTime createdAt;
 }

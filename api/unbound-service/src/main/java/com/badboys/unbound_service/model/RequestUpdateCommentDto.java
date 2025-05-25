@@ -15,4 +15,6 @@ public class RequestUpdateCommentDto {
     private int depth;
 
     private String content;
+
+    private String useYn;
 }

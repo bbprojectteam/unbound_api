@@ -140,6 +140,7 @@ public class MatchService {
 
         return new MatchInfoDto(
                 matchInfo.getId(),
+                matchInfo.getMatchName(),
                 matchInfo.getStartAt(),
                 matchInfo.getEndAt(),
                 matchInfo.getRegion().getId(),
@@ -193,7 +194,12 @@ public class MatchService {
         if (requestUpdateCommentDto.getCommentId() != null) {       // 업데이트
             CommentEntity currentCommentEntity = commentRepository.findById(requestUpdateCommentDto.getCommentId())
                     .orElseThrow(() -> new IllegalArgumentException("원댓글을 찾을 수 없습니다"));
-            currentCommentEntity.updateContent(requestUpdateCommentDto.getContent());
+            if (requestUpdateCommentDto.getUseYn().equals("N")) {
+                currentCommentEntity.deleteComment();
+            }
+            else {
+                currentCommentEntity.updateContent(requestUpdateCommentDto.getContent());
+            }
             commentRepository.save(currentCommentEntity);
         } else {        // 인서트
             MatchInfoEntity matchInfoEntity = matchInfoRepository.findById(requestUpdateCommentDto.getMatchInfoId())
@@ -204,6 +210,7 @@ public class MatchService {
 
             CommentEntity commentEntity = CommentEntity.builder()
                     .content(requestUpdateCommentDto.getContent())
+                    .useYn("Y")
                     .matchInfo(matchInfoEntity)
                     .user(userEntity)
                     .depth(0)
@@ -224,6 +231,7 @@ public class MatchService {
 
         MatchInfoEntity matchInfo = MatchInfoEntity.builder()
                 .startAt(LocalDateTime.now())
+                .matchName(requestGameStartDto.getMatchName())
                 .region(regionEntity)
                 .build();
 

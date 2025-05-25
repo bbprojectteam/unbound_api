@@ -29,6 +29,8 @@ public class MatchInfoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String matchName;
+
     private LocalDateTime startAt;
 
     private LocalDateTime endAt;

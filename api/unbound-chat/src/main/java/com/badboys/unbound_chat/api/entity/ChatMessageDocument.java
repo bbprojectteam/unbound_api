@@ -22,12 +22,15 @@ public class ChatMessageDocument {
 
     private String message;
 
+    private String imageUrl;
+
     private LocalDateTime createdAt;
 
-    public ChatMessageDocument(Long chatRoomId, Long senderId, String message) {
+    public ChatMessageDocument(Long chatRoomId, Long senderId, String message, String imageUrl) {
         this.chatRoomId = chatRoomId;
         this.senderId = senderId;
         this.message = message;
+        this.imageUrl = imageUrl;
         this.createdAt = LocalDateTime.now(); // 메시지 생성 시간 자동 설정
     }
 }

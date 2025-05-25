@@ -18,4 +18,7 @@ public class RequestGameStartDto {
 
     @Schema(description = "지역 id", example = "1")
     Long regionId;
+
+    @Schema(description = "매치명", example = "매치 명")
+    String matchName;
 }

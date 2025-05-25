@@ -10,4 +10,6 @@ public class ChatMessage {
     private Long senderId;
 
     private String message;
+
+    private String imageUrl;
 }
