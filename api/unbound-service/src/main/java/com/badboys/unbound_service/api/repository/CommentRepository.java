@@ -15,6 +15,7 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
     @Query("SELECT new com.badboys.unbound_service.model.CommentDto(" +
             "c.id, c.content, c.depth, " +
             "u.id, u.username, u.profileImage, " +
+            "c.useYn, " +
             "c.updatedAt, " +
             "c.parent.id) " +
             "FROM CommentEntity c " +
