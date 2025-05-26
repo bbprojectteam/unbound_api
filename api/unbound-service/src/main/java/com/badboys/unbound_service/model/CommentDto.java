@@ -33,6 +33,9 @@ public class CommentDto {
     @Schema(description = "댓글 작성자 프로필 이미지 URL", example = "https://example.com/profile.jpg")
     private String profileImage;
 
+    @Schema(description = "댓글 삭제 여부", example = "Y")
+    private String useYn;
+
     @Schema(description = "댓글 수정 날짜", example = "2025-02-09T12:34:56")
     private LocalDateTime updatedAt;
 
@@ -43,13 +46,14 @@ public class CommentDto {
     private List<CommentDto> childList;
 
     public CommentDto(Long commentId, String content, int depth,
-                      Long userId, String username, String profileImage, LocalDateTime updatedAt, Long parentId) {
+                      Long userId, String username, String profileImage, String useYn, LocalDateTime updatedAt, Long parentId) {
         this.commentId = commentId;
         this.content = content;
         this.depth = depth;
         this.userId = userId;
         this.username = username;
         this.profileImage = profileImage;
+        this.useYn = useYn;
         this.updatedAt = updatedAt;
         this.parentId = parentId;
         this.childList = new ArrayList<>();
