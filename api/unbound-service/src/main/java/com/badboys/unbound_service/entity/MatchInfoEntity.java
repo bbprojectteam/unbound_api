@@ -1,5 +1,6 @@
 package com.badboys.unbound_service.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,6 +35,10 @@ public class MatchInfoEntity {
     private LocalDateTime startAt;
 
     private LocalDateTime endAt;
+
+    private Double latitude;
+
+    private Double longitude;
 
     @OneToMany(mappedBy = "matchInfo", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

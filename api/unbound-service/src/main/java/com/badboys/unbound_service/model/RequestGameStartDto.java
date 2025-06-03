@@ -11,14 +11,20 @@ import java.util.List;
 public class RequestGameStartDto {
 
     @Schema(description = "a팀 유저 id목록", example = "[1, 2, 3]")
-    List<Long> aTeamIdList;
+    private List<Long> aTeamIdList;
 
     @Schema(description = "b팀 유저 id목록", example = "[1, 2, 3]")
-    List<Long> bTeamIdList;
+    private List<Long> bTeamIdList;
 
     @Schema(description = "지역 id", example = "1")
-    Long regionId;
+    private Long regionId;
 
     @Schema(description = "매치명", example = "매치 명")
-    String matchName;
+    private String matchName;
+
+    @Schema(description = "위도", example = "111.00")
+    private Double latitude;
+
+    @Schema(description = "경도", example = "111.00")
+    private Double longitude;
 }

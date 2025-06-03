@@ -62,13 +62,17 @@ public class ChatRoomEntity {
     @Column(name = "halfCourtYn", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     private String halfCourtYn;
 
+    private Double latitude;
+
+    private Double longitude;
+
     @BatchSize(size = 10)
     @Builder.Default
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMemberEntity> chatMemberList = new ArrayList<>();
 
     public void updateChatRoomInfo(String name, String location, String description, String matchDt, String threeOnThreeYn,
-                                   String ballYn, String refereeYn, String backBoardYn, String threePointLimitYn, String halfCourtYn) {
+                                   String ballYn, String refereeYn, String backBoardYn, String threePointLimitYn, String halfCourtYn, Double latitude, Double longitude) {
         this.name = (name != null) ? name : this.name;
         this.location = (location != null) ? location : this.location;
         this.description = (description != null) ? description : this.description;
@@ -79,6 +83,8 @@ public class ChatRoomEntity {
         this.backBoardYn = (backBoardYn != null) ? backBoardYn : this.backBoardYn;
         this.threePointLimitYn = (threePointLimitYn != null) ? threePointLimitYn : this.threePointLimitYn;
         this.halfCourtYn = (halfCourtYn != null) ? halfCourtYn : this.halfCourtYn;
+        this.latitude = (latitude != null) ? latitude : this.latitude;
+        this.longitude = (longitude != null) ? longitude : this.longitude;
     }
 
     public void addChatMember(ChatMemberEntity member) {

@@ -42,4 +42,10 @@ public class RequestUpdateChatRoomDto {
 
     @Schema(description = "반코트 여부", example = "Y")
     private String halfCourtYn;
+
+    @Schema(description = "위도", example = "111.00")
+    private Double latitude;
+
+    @Schema(description = "경도", example = "111.00")
+    private Double longitude;
 }

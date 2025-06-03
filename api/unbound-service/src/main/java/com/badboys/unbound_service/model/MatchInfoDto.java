@@ -27,6 +27,12 @@ public class MatchInfoDto {
     @Schema(description = "지역 ID", example = "1")
     private Long regionId;
 
+    @Schema(description = "위도", example = "111.00")
+    private Double latitude;
+
+    @Schema(description = "경도", example = "111.00")
+    private Double longitude;
+
     @Schema(description = "참여한 팀 리스트", example = "[{teamId: 1, result: 'WIN', userList: [...]}, {teamId: 2, result: 'LOSE', userList: [...]}]")
     private List<TeamInfoDto> teamList;
 }

@@ -98,7 +98,7 @@ public class ChatRoomService {
     }
 
     @Transactional // 읽음처리 + 메세지 목록 반환
-    public List<MessageDto> getMessages(Long userId, Long chatRoomId, String lastMessageId) {
+    public ResponseMessageListDto getMessages(Long userId, Long chatRoomId, String lastMessageId) {
 
         if (lastMessageId == null) {  // 채팅방 진입시
             readMessage(userId, chatRoomId);  // 읽음 처리
@@ -113,7 +113,10 @@ public class ChatRoomService {
             messages = chatMessageRepository.findTop20ByChatRoomIdAndIdLessThanOrderByCreatedAtDesc(chatRoomId, new ObjectId(lastMessageId));
         }
 
-        return convertMessage(messages, chatRoomId);       // 메시지 목록 반환
+        int messageCnt = chatMessageRepository.countByChatRoomId(chatRoomId);
+        List<MessageDto> messageDtoList = convertMessage(messages, chatRoomId);
+
+        return new ResponseMessageListDto(messageDtoList, messageCnt);       // 메시지 목록 반환
     }
 
     // 메시지 읽음 처리 (lastReadMessageId 업데이트)
@@ -202,7 +205,9 @@ public class ChatRoomService {
                 requestUpdateChatRoomDto.getRefereeYn(),
                 requestUpdateChatRoomDto.getBackBoardYn(),
                 requestUpdateChatRoomDto.getThreePointLimitYn(),
-                requestUpdateChatRoomDto.getHalfCourtYn()
+                requestUpdateChatRoomDto.getHalfCourtYn(),
+                requestUpdateChatRoomDto.getLatitude(),
+                requestUpdateChatRoomDto.getLongitude()
         );
         chatRoomRepository.save(chatRoomEntity);
     }

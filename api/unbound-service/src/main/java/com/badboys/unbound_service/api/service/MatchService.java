@@ -144,6 +144,8 @@ public class MatchService {
                 matchInfo.getStartAt(),
                 matchInfo.getEndAt(),
                 matchInfo.getRegion().getId(),
+                matchInfo.getLatitude(),
+                matchInfo.getLongitude(),
                 teamList
         );
     }
@@ -233,6 +235,8 @@ public class MatchService {
                 .startAt(LocalDateTime.now())
                 .matchName(requestGameStartDto.getMatchName())
                 .region(regionEntity)
+                .latitude(requestGameStartDto.getLatitude())
+                .longitude(requestGameStartDto.getLongitude())
                 .build();
 
         List<UserEntity> aTeamUsers = userRepository.findAllById(requestGameStartDto.getATeamIdList());

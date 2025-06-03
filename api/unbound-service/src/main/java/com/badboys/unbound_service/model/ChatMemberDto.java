@@ -19,5 +19,7 @@ public class ChatMemberDto {
 
     private int mmr;
 
+    private RoleType role;
+
     private String lastReadMessageId;
 }

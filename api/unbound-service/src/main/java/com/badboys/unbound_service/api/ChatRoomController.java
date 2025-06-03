@@ -160,10 +160,10 @@ public class ChatRoomController {
     @ApiResponse(responseCode = "200", description = "조회 성공",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = MessageDto.class))))
     @GetMapping("/{chatRoomId}/messages")
-    public ResponseEntity<?> getMessages(@RequestHeader("X-User-Id") String userId, @PathVariable Long chatRoomId, @RequestParam(required = false) String lastMessageId) {
+    public ResponseEntity<ResponseMessageListDto> getMessages(@RequestHeader("X-User-Id") String userId, @PathVariable Long chatRoomId, @RequestParam(required = false) String lastMessageId) {
 
-        List<MessageDto> messageList = chatRoomService.getMessages(Long.parseLong(userId), chatRoomId, lastMessageId);
-        return ResponseEntity.ok(Map.of("messageList", messageList));
+        ResponseMessageListDto responseMessageListDto = chatRoomService.getMessages(Long.parseLong(userId), chatRoomId, lastMessageId);
+        return ResponseEntity.ok(responseMessageListDto);
     }
 
     @Operation(summary = "채팅 메세지 목록 새로고침", description = "채팅 메세지 목록")
@@ -178,7 +178,7 @@ public class ChatRoomController {
 
     @Operation(summary = "채팅 이미지 업로드", description = "채팅 메세지 목록")
     @ApiResponse(responseCode = "200", description = "조회 성공")
-    @GetMapping("/{chatRoomId}/uploadImage")
+    @PostMapping("/{chatRoomId}/uploadImage")
     public ResponseEntity<?> uploadChatImage(@RequestHeader("X-User-Id") String userId, @PathVariable Long chatRoomId, @RequestPart(value = "profileImageFile") MultipartFile imageFile) {
 
         String imageUrl = chatRoomService.uploadImage(imageFile);
