@@ -15,9 +15,9 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoomEntity, Long> 
 
     @Query("""
                 SELECT new com.badboys.unbound_service.model.ChatRoomInfo(
-                    cr.id, 
-                    cr.name,  
-                    cr.regionId, 
+                    cr.id,
+                    cr.name,
+                    cr.regionId,
                     cr.matchDt,
                     cr.location,
                     cr.description,
@@ -27,6 +27,8 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoomEntity, Long> 
                     cr.backBoardYn,
                     cr.threePointLimitYn,
                     cr.halfCourtYn,
+                    cr.latitude,
+                    cr.longitude,
                     CASE
                       WHEN (cm.id IS NULL) THEN 'N'
                       ELSE 'Y'

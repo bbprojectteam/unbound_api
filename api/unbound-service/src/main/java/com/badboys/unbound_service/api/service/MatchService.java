@@ -1,9 +1,6 @@
 package com.badboys.unbound_service.api.service;
 
-import com.badboys.unbound_service.api.repository.CommentRepository;
-import com.badboys.unbound_service.api.repository.MatchInfoRepository;
-import com.badboys.unbound_service.api.repository.TeamRepository;
-import com.badboys.unbound_service.api.repository.UserRepository;
+import com.badboys.unbound_service.api.repository.*;
 import com.badboys.unbound_service.entity.*;
 import com.badboys.unbound_service.model.*;
 import jakarta.transaction.Transactional;
@@ -33,17 +30,19 @@ public class MatchService {
     private final MatchInfoRepository matchInfoRepository;
     private final CommentRepository commentRepository;
     private final TeamRepository teamRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    public MatchService(UserService userService, RegionService regionService, UserRepository userRepository, MatchInfoRepository matchInfoRepository, CommentRepository commentRepository, TeamRepository teamRepository, KafkaTemplate<String, Object> kafkaTemplate, RedisTemplate<String, Object> redisTemplate) {
+    public MatchService(UserService userService, RegionService regionService, UserRepository userRepository, MatchInfoRepository matchInfoRepository, CommentRepository commentRepository, TeamRepository teamRepository, ChatRoomRepository chatRoomRepository, KafkaTemplate<String, Object> kafkaTemplate, RedisTemplate<String, Object> redisTemplate) {
         this.userService = userService;
         this.regionService = regionService;
         this.userRepository = userRepository;
         this.matchInfoRepository = matchInfoRepository;
         this.commentRepository = commentRepository;
         this.teamRepository = teamRepository;
+        this.chatRoomRepository = chatRoomRepository;
         this.kafkaTemplate = kafkaTemplate;
         this.redisTemplate = redisTemplate;
     }
@@ -231,12 +230,16 @@ public class MatchService {
 
         RegionEntity regionEntity = regionService.getRegion(requestGameStartDto.getRegionId());
 
+        ChatRoomEntity chatRoomEntity = chatRoomRepository.findById(requestGameStartDto.getChatRoomId())
+                .orElseThrow(() -> new IllegalArgumentException("채팅방 정보 없음"));
+
         MatchInfoEntity matchInfo = MatchInfoEntity.builder()
                 .startAt(LocalDateTime.now())
                 .matchName(requestGameStartDto.getMatchName())
                 .region(regionEntity)
-                .latitude(requestGameStartDto.getLatitude())
-                .longitude(requestGameStartDto.getLongitude())
+                .location(chatRoomEntity.getLocation())
+                .latitude(chatRoomEntity.getLatitude())
+                .longitude(chatRoomEntity.getLongitude())
                 .build();
 
         List<UserEntity> aTeamUsers = userRepository.findAllById(requestGameStartDto.getATeamIdList());

@@ -51,6 +51,12 @@ public class ChatRoomInfo {
     @Schema(description = "반코트여부", example = "Y")
     private String halfCourtYn;
 
+    @Schema(description = "위도", example = "127.00")
+    private Double latitude;
+
+    @Schema(description = "경도", example = "127.00")
+    private Double longitude;
+
     @Schema(description = "라커룸 참여 여부", example = "Y")
     private String joinedYn;
 }

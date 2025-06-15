@@ -10,6 +10,9 @@ import java.util.List;
 @AllArgsConstructor
 public class RequestGameStartDto {
 
+    @Schema(description = "채팅방 id", example = "1")
+    private Long chatRoomId;
+
     @Schema(description = "a팀 유저 id목록", example = "[1, 2, 3]")
     private List<Long> aTeamIdList;
 
@@ -21,10 +24,4 @@ public class RequestGameStartDto {
 
     @Schema(description = "매치명", example = "매치 명")
     private String matchName;
-
-    @Schema(description = "위도", example = "111.00")
-    private Double latitude;
-
-    @Schema(description = "경도", example = "111.00")
-    private Double longitude;
 }

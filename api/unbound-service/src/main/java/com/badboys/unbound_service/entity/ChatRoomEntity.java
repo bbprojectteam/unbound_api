@@ -62,8 +62,10 @@ public class ChatRoomEntity {
     @Column(name = "halfCourtYn", columnDefinition = "CHAR(1) DEFAULT 'Y'")
     private String halfCourtYn;
 
+    @Column(name = "latitude")
     private Double latitude;
 
+    @Column(name = "longitude")
     private Double longitude;
 
     @BatchSize(size = 10)

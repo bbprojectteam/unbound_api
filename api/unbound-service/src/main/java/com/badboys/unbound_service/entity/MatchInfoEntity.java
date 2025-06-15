@@ -36,6 +36,8 @@ public class MatchInfoEntity {
 
     private LocalDateTime endAt;
 
+    private String location;
+
     private Double latitude;
 
     private Double longitude;
