@@ -145,6 +145,7 @@ public class MatchService {
                 matchInfo.getRegion().getId(),
                 matchInfo.getLatitude(),
                 matchInfo.getLongitude(),
+                matchInfo.getLocation(),
                 teamList
         );
     }

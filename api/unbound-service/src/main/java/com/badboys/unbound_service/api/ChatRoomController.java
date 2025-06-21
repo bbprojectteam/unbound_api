@@ -185,4 +185,27 @@ public class ChatRoomController {
         return ResponseEntity.ok(Map.of("imageUrl", imageUrl));
     }
 
+    @Operation(summary = "방장 역할 변경", description = "방장 넘기기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "역할 변경 성공"),
+            @ApiResponse(responseCode = "404", description = "채팅방을 찾을 수 없음",
+                    content = @Content(schema = @Schema(example = "{\"message\": \"채팅방을 찾을 수 없습니다.\"}"))),
+            @ApiResponse(responseCode = "500", description = "서버에러",
+                    content = @Content(schema = @Schema(example = "{\"message\": \"서버에러\"}")))
+    })
+    @PostMapping("/{chatRoomId}/changeOwner/{targetUserId}")
+    public ResponseEntity<?> changeOwner(@RequestHeader("X-User-Id") String userId, @PathVariable Long chatRoomId, @PathVariable Long targetUserId) {
+
+        try {
+            chatRoomService.changeOwner(Long.parseLong(userId), chatRoomId, targetUserId);
+            return ResponseEntity.ok(Map.of("message", "역할 변경 성공"));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "채팅방을 찾을 수 없습니다."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "서버에러"));
+        }
+    }
+
 }

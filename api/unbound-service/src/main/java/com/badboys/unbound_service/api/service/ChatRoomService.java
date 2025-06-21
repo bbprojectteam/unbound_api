@@ -267,4 +267,28 @@ public class ChatRoomService {
 
         return imageUrl;
     }
+
+    @Transactional
+    public void changeOwner(Long userId, Long chatRoomId, Long targetUserId){
+
+        ChatMemberEntity ownerMember = chatMemberRepository.findByUserIdAndChatRoomId(userId, chatRoomId);
+        ChatMemberEntity targetMember = chatMemberRepository.findByUserIdAndChatRoomId(targetUserId, chatRoomId);
+        if (ownerMember == null) {
+            throw new EntityNotFoundException("채팅방에 해당 유저가 존재하지 않습니다.");
+        }
+        if (targetMember == null) {
+            throw new EntityNotFoundException("채팅방에 해당 유저가 존재하지 않습니다.");
+        }
+        RoleType role = ownerMember.getRole();
+
+        if (!role.equals(RoleType.OWNER)) {
+            throw new EntityNotFoundException("권한이 없습니다.");
+        }
+
+        ownerMember.updateRole(RoleType.MEMBER);
+        targetMember.updateRole(RoleType.OWNER);
+
+        chatMemberRepository.save(ownerMember);
+        chatMemberRepository.save(targetMember);
+    }
 }

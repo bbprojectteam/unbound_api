@@ -55,4 +55,8 @@ public class ChatMemberEntity {
     public void setChatRoom(ChatRoomEntity chatRoom) {
         this.chatRoom = chatRoom;
     }
+
+    public void updateRole(RoleType role) {  // 역할변경
+        this.role = (role != null) ? role : this.role;
+    }
 }

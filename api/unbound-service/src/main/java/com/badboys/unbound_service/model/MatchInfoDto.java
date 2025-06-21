@@ -33,6 +33,9 @@ public class MatchInfoDto {
     @Schema(description = "경도", example = "111.00")
     private Double longitude;
 
+    @Schema(description = "위치", example = "")
+    private String location;
+
     @Schema(description = "참여한 팀 리스트", example = "[{teamId: 1, result: 'WIN', userList: [...]}, {teamId: 2, result: 'LOSE', userList: [...]}]")
     private List<TeamInfoDto> teamList;
 }
