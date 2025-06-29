@@ -3,6 +3,7 @@ package com.badboys.unbound_service.api.service;
 import com.badboys.unbound_service.api.repository.*;
 import com.badboys.unbound_service.entity.*;
 import com.badboys.unbound_service.model.*;
+import com.badboys.unbound_service.util.MmrUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,9 @@ public class MatchService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    public MatchService(UserService userService, RegionService regionService, UserRepository userRepository, MatchInfoRepository matchInfoRepository, CommentRepository commentRepository, TeamRepository teamRepository, ChatRoomRepository chatRoomRepository, KafkaTemplate<String, Object> kafkaTemplate, RedisTemplate<String, Object> redisTemplate) {
+    public MatchService(UserService userService, RegionService regionService, UserRepository userRepository, MatchInfoRepository matchInfoRepository,
+                        CommentRepository commentRepository, TeamRepository teamRepository, ChatRoomRepository chatRoomRepository,
+                        KafkaTemplate<String, Object> kafkaTemplate, RedisTemplate<String, Object> redisTemplate) {
         this.userService = userService;
         this.regionService = regionService;
         this.userRepository = userRepository;
@@ -286,5 +289,38 @@ public class MatchService {
         bTeam.updateResult(dto.getBTeamResult().getScore(), dto.getBTeamResult().getResult());
 
         matchInfo.updateEndAt(LocalDateTime.now());
+
+        updateMmrByResult(aTeam, bTeam);
     }
+
+    private void updateMmrByResult(TeamEntity aTeam, TeamEntity bTeam) {
+        int aAvg = calcAverageMmr(aTeam.getUserList());
+        int bAvg = calcAverageMmr(bTeam.getUserList());
+
+        double aScore = getActualScore(aTeam.getResult());
+        double bScore = getActualScore(bTeam.getResult());
+
+        for (UserEntity user : aTeam.getUserList()) {
+            int newMmr = MmrUtil.calculateNewRating(user.getMmr(), bAvg, aScore);
+            user.updateMmr(newMmr);
+        }
+
+        for (UserEntity user : bTeam.getUserList()) {
+            int newMmr = MmrUtil.calculateNewRating(user.getMmr(), aAvg, bScore);
+            user.updateMmr(newMmr);
+        }
+    }
+
+    private int calcAverageMmr(Set<UserEntity> users) {
+        return (int) users.stream().mapToInt(UserEntity::getMmr).average().orElse(1200);
+    }
+
+    private double getActualScore(MatchResultType result) {
+        return switch (result) {
+            case WIN -> 1.0;
+            case DRAW -> 0.5;
+            case LOSE -> 0.0;
+        };
+    }
+
 }
