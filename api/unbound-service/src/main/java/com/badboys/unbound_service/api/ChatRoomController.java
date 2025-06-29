@@ -208,4 +208,30 @@ public class ChatRoomController {
         }
     }
 
+    @Operation(summary = "초대할 유저 목록 조회", description = "지역 기반 유저목록")
+    @ApiResponse(responseCode = "200", description = "조회 성공",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserSimpleDto.class))))
+    @GetMapping("/{chatRoomId}/invitation/list")
+    public ResponseEntity<?> getInvitationList(@RequestHeader("X-User-Id") String userId, @PathVariable Long chatRoomId) {
+
+        List<UserSimpleDto> invitableList = chatRoomService.getInvitationList(chatRoomId);
+        return ResponseEntity.ok(Map.of("invitableList", invitableList));
+    }
+
+    @Operation(summary = "유저 초대", description = "유저 초대")
+    @ApiResponse(responseCode = "200", description = "초대 성공")
+    @PostMapping("/{chatRoomId}/invitation/{targetUserId}")
+    public ResponseEntity<?> inviteUser(@RequestHeader("X-User-Id") String userId, @PathVariable Long chatRoomId, @PathVariable Long targetUserId) {
+
+        try {
+            chatRoomService.inviteUser(chatRoomId, targetUserId);
+            return ResponseEntity.ok(Map.of("message", "초대 성공"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "카프카 오류"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "서버에러"));
+        }
+    }
 }

@@ -13,6 +13,9 @@ import java.util.Set;
 @Repository
 public interface FcmTokenRepository extends JpaRepository<FcmTokenEntity, Long> {
 
+    @Query("SELECT f.fcmToken FROM FcmTokenEntity f WHERE f.user.id = :userIds")
+    String findTokenByUserId(@Param("userId") Long userId);
+
     @Query("SELECT f.fcmToken FROM FcmTokenEntity f WHERE f.user.id IN :userIds")
     Set<String> findTokensByUserIds(@Param("userIds") Set<Long> userIds);
 

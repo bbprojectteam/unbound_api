@@ -8,10 +8,13 @@ import com.badboys.unbound_service.entity.*;
 import com.badboys.unbound_service.model.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,9 +24,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ChatRoomService {
 
     private final UserService userService;
@@ -40,8 +45,11 @@ public class ChatRoomService {
 
     private final S3Service s3Service;
 
+    private final KafkaTemplate kafkaTemplate;
+
     @Autowired
-    public ChatRoomService(UserService userService, RegionService regionService, ModelMapper modelMapper, ChatRoomRepository chatRoomRepository, ChatMemberRepository chatMemberRepository, ChatMessageRepository chatMessageRepository, S3Service s3Service) {
+    public ChatRoomService(UserService userService, RegionService regionService, ModelMapper modelMapper, ChatRoomRepository chatRoomRepository,
+                           ChatMemberRepository chatMemberRepository, ChatMessageRepository chatMessageRepository, S3Service s3Service, KafkaTemplate kafkaTemplate) {
         this.userService = userService;
         this.regionService = regionService;
         this.modelMapper = modelMapper;
@@ -49,6 +57,7 @@ public class ChatRoomService {
         this.chatMemberRepository = chatMemberRepository;
         this.chatMessageRepository = chatMessageRepository;
         this.s3Service = s3Service;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     public List<ChatRoomThumbnailDto> getJoinedChatRoomList(Long userId) {
@@ -290,5 +299,43 @@ public class ChatRoomService {
 
         chatMemberRepository.save(ownerMember);
         chatMemberRepository.save(targetMember);
+    }
+
+    public List<UserSimpleDto> getInvitationList(Long chatRoomId) {
+
+        ChatRoomEntity chatRoomEntity = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow();
+
+        Long regionId = chatRoomEntity.getRegionId();
+
+        List<Long> regionChildren = regionService.getAllChildrenId(regionId);
+
+        List<UserSimpleDto> invitableList = userService.getUsersToInvite(chatRoomId, regionChildren);
+
+        return invitableList;
+    }
+
+    public void inviteUser(Long chatRoomId, Long userId) {
+
+        try {
+
+            ChatRoomEntity chatRoomEntity = chatRoomRepository.findById(chatRoomId)
+                    .orElseThrow();
+
+            RequestInviteDto requestInviteDto = new RequestInviteDto(chatRoomId, chatRoomEntity.getName(), userId);
+
+            CompletableFuture<SendResult<String, Object>> future =
+                    kafkaTemplate.send("invite-request-topic", requestInviteDto);
+
+            future.thenAccept(result -> {
+                log.info("Kafka 초대 메시지 전송 성공: " + requestInviteDto);
+            }).exceptionally(ex -> {
+                log.error("Kafka 초대 메시지 전송 실패: " + ex.getMessage());
+                throw new RuntimeException("Kafka 메시지 전송 실패", ex);
+            });
+
+        } catch (Exception e) {
+            log.error("매칭 시작 실패: " + e.getMessage());
+        }
     }
 }

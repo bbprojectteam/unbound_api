@@ -1,5 +1,7 @@
 package com.badboys.unbound_chat.api.service;
 
+import com.badboys.unbound_chat.api.entity.ChatRoomEntity;
+import com.badboys.unbound_chat.api.model.RequestInviteDto;
 import com.badboys.unbound_chat.api.repository.FcmTokenRepository;
 import com.google.firebase.messaging.*;
 import jakarta.transaction.Transactional;
@@ -7,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -75,5 +78,19 @@ public class FcmService {
 
         firebaseMessaging.send(messageBuilder.build());
         log.info("푸시 알림 성공 - Token: {}", token);
+    }
+
+    /**
+     * 초대 메세지 생성
+     */
+    public void sendInvite(RequestInviteDto requestInviteDto) throws FirebaseMessagingException{
+
+        String token = fcmTokenRepository.findTokenByUserId(requestInviteDto.getUserId());
+
+        Map<String, String> data = new HashMap<>();
+        data.put("chatRoomId", requestInviteDto.getChatRoomId().toString());
+        data.put("chatRoomName", requestInviteDto.getChatRoomName());
+
+        sendFcmMessage(token, "초대 메세지", "초대가 도착했어요!", data);
     }
 }

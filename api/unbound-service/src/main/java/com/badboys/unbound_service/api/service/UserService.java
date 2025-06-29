@@ -99,4 +99,9 @@ public class UserService {
                 .map(user -> new UserSimpleDto(user.getId(), user.getUsername(), user.getProfileImage(), user.getMmr(), user.getIntroduction()))
                 .collect(Collectors.toList());
     }
+
+    public List<UserSimpleDto> getUsersToInvite(Long chatRoomId, List<Long> regionChildren) {
+        Set<UserEntity> candidates = userRepository.findInvitableUsers(regionChildren, chatRoomId);
+        return convertToUserSimpleDto(candidates);
+    }
 }
