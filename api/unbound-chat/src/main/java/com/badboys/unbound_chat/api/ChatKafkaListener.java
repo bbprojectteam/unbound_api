@@ -22,7 +22,7 @@ public class ChatKafkaListener {
     @KafkaListener(
             topics = "chat-message-topic",
             groupId = "${spring.kafka.consumer.chat.group-id}",
-            containerFactory = "chatKafkaListenerContainerFactory"  // ✅ 새 Factory 적용!
+            containerFactory = "chatKafkaListenerContainerFactory"
     )
     public void chatListen(ChatMessage chatMessage) {
         log.info("Kafka에서 채팅 메시지 수신: {}", chatMessage);

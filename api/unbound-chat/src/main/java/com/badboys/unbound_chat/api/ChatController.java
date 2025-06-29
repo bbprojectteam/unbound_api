@@ -1,6 +1,7 @@
 package com.badboys.unbound_chat.api;
 
 import com.badboys.unbound_chat.api.model.ChatMessage;
+import com.badboys.unbound_chat.api.model.ReadMessage;
 import com.badboys.unbound_chat.api.service.ChatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,5 +25,11 @@ public class ChatController {
 
         log.info("클라이언트에서 채팅 메시지 수신: {}", chatMessage);
         chatService.publishMessage(chatMessage);
+    }
+
+    @MessageMapping("/chat.read")
+    public void readMessage(@Payload ReadMessage readMessage) {
+        log.info("클라이언트에서 읽음 메시지 수신: {}", readMessage);
+        chatService.processReadMessage(readMessage);
     }
 }

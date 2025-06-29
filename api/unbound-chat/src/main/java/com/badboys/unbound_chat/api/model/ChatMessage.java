@@ -9,6 +9,8 @@ public class ChatMessage {
 
     private Long senderId;
 
+    private Long chatMessageId;
+
     private String message;
 
     private String imageUrl;

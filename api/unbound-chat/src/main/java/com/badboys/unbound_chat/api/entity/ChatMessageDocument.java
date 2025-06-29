@@ -18,6 +18,8 @@ public class ChatMessageDocument {
 
     private Long chatRoomId;
 
+    private Long chatMessageId;
+
     private Long senderId;
 
     private String message;
