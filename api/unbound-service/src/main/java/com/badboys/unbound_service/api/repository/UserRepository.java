@@ -28,7 +28,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
               WHERE cm.chatRoom.id = :chatRoomId
           )
     """)
-    Set<UserEntity> findInvitableUsers(@Param("regionIds") List<Long> regionIdList,
+    Set<UserEntity> findInvitableUsers(@Param("regionIds") List<Long> regionIds,
                                       @Param("chatRoomId") Long chatRoomId);
 
 }

@@ -3,6 +3,7 @@ package com.badboys.unbound_chat.api.service;
 import com.badboys.unbound_chat.api.entity.*;
 import com.badboys.unbound_chat.api.model.*;
 import com.badboys.unbound_chat.api.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -95,6 +96,7 @@ public class ChatService {
                 });
     }
 
+    @Transactional
     public void sendMessage(ChatMessage chatMessage) {
 
         Long nextMessageId = mongoService.getNextSequence("chatMessageId:room:" + chatMessage.getChatRoomId());
