@@ -130,8 +130,8 @@ public class ChatService {
 
         try {
             // WebSocket을 통해 메시지 브로드캐스트
-//            messagingTemplate.convertAndSend("/topic/chat/" + chatMessage.getChatRoomId(), chatMessage,
-//                    messageHeaders(chatMessage.getSenderId().toString()));
+            messagingTemplate.convertAndSend("/topic/chat/" + chatMessage.getChatRoomId(), chatMessage,
+                    messageHeaders(chatMessage.getSenderId().toString()));
 
             log.info("WebSocket으로 메시지 전송 완료: {}", chatMessage);
         } catch (Exception e) {
