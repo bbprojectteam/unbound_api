@@ -21,5 +21,5 @@ public class ChatMemberDto {
 
     private RoleType role;
 
-    private String lastReadMessageId;
+    private Long lastReadMessageId;
 }

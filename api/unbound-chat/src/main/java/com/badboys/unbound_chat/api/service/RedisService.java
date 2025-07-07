@@ -40,9 +40,9 @@ public class RedisService {
             List<ChatMemberEntity> memberList = chatMemberRepository.findByChatRoomId(roomId);
             for (ChatMemberEntity member : memberList) {
                 Long userId = member.getUser().getId();
-                String lastReadMessageId = member.getLastReadMessageId();
+                Long lastReadMessageId = member.getLastReadMessageId();
                 if (lastReadMessageId != null) {
-                    redisTemplate.opsForHash().put(key, userId.toString(), lastReadMessageId);
+                    redisTemplate.opsForHash().put(key, userId.toString(), lastReadMessageId.toString());
                 }
             }
 

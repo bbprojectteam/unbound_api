@@ -154,26 +154,14 @@ public class ChatRoomController {
         }
     }
 
-    // Todo 채팅방 초대 만들기
-
     @Operation(summary = "채팅 메세지 목록 조회", description = "채팅 메세지 목록")
     @ApiResponse(responseCode = "200", description = "조회 성공",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = MessageDto.class))))
     @GetMapping("/{chatRoomId}/messages")
-    public ResponseEntity<ResponseMessageListDto> getMessages(@RequestHeader("X-User-Id") String userId, @PathVariable Long chatRoomId, @RequestParam(required = false) String lastMessageId) {
+    public ResponseEntity<ResponseMessageListDto> getMessages(@RequestHeader("X-User-Id") String userId, @PathVariable Long chatRoomId, @RequestParam(required = false) Long lastMessageId) {
 
         ResponseMessageListDto responseMessageListDto = chatRoomService.getMessages(Long.parseLong(userId), chatRoomId, lastMessageId);
         return ResponseEntity.ok(responseMessageListDto);
-    }
-
-    @Operation(summary = "채팅 메세지 목록 새로고침", description = "채팅 메세지 목록")
-    @ApiResponse(responseCode = "200", description = "조회 성공",
-            content = @Content(array = @ArraySchema(schema = @Schema(implementation = MessageDto.class))))
-    @GetMapping("/{chatRoomId}/refresh")
-    public ResponseEntity<?> getRefreshMessages(@RequestHeader("X-User-Id") String userId, @PathVariable Long chatRoomId, @RequestParam(required = false) String lastMessageId) {
-
-        List<MessageDto> messageList = chatRoomService.getRefreshMessages(Long.parseLong(userId), chatRoomId, lastMessageId);
-        return ResponseEntity.ok(Map.of("messageList", messageList));
     }
 
     @Operation(summary = "채팅 이미지 업로드", description = "채팅 메세지 목록")

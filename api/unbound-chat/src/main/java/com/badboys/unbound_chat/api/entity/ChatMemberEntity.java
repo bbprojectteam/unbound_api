@@ -31,7 +31,7 @@ public class ChatMemberEntity {
     private Long id;
 
     @Column(name = "lastReadMessageId")
-    private String lastReadMessageId;
+    private Long lastReadMessageId;
 
     @Column(name = "role") // 예: 'OWNER', 'MEMBER' 등
     private RoleType role;
@@ -48,7 +48,7 @@ public class ChatMemberEntity {
     @Builder.Default
     private LocalDateTime joinedAt = LocalDateTime.now();
 
-    public void upateLastReadMessage(String lastReadMessageId) {  // 마지막 읽은 채팅 업데이트
+    public void upateLastReadMessage(Long lastReadMessageId) {  // 마지막 읽은 채팅 업데이트
         this.lastReadMessageId = (lastReadMessageId != null) ? lastReadMessageId : this.lastReadMessageId;
     }
 }

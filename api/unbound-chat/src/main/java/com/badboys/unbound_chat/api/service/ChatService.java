@@ -166,7 +166,7 @@ public class ChatService {
 
         // 2. rdb 챗멤버 업데이트
         ChatMemberEntity chatMemberEntity = chatMemberRepository.findByChatRoomIdAndUserId(chatRoomId, userId);
-        chatMemberEntity.upateLastReadMessage(lastReadMessageId.toString());
+        chatMemberEntity.upateLastReadMessage(lastReadMessageId);
         chatMemberRepository.save(chatMemberEntity);
 
         // 3. 참여자들의 마지막 읽은 메시지 조회

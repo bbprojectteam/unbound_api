@@ -10,7 +10,7 @@ import lombok.Getter;
 public class MessageDto {
 
     @Schema(description = "메세지 ID", example = "123")
-    private String messageId;
+    private Long chatMessageId;
 
     @Schema(description = "보낸 유저 ID", example = "123")
     private Long senderId;
