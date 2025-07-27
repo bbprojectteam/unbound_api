@@ -36,6 +36,9 @@ public class MatchInfoDto {
     @Schema(description = "위치", example = "")
     private String location;
 
+    @Schema(description = "MMR 변동", example = "25")
+    private int mmrChange;
+
     @Schema(description = "참여한 팀 리스트", example = "[{teamId: 1, result: 'WIN', userList: [...]}, {teamId: 2, result: 'LOSE', userList: [...]}]")
     private List<TeamInfoDto> teamList;
 }

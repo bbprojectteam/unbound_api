@@ -15,7 +15,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     @Query("SELECT COUNT(m.id) " +
             "FROM MatchInfoEntity m " +
             "JOIN m.teamList t " +
-            "JOIN t.userList u " +
+            "JOIN t.teamUsers tu " +
+            "JOIN tu.user u " +
             "WHERE u.id = :userId AND m.endAt IS NOT NULL")
     int countUserMatchHistory(@Param("userId") Long userId);
 

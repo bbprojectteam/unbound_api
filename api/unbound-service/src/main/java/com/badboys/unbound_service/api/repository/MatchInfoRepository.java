@@ -9,12 +9,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface MatchInfoRepository extends JpaRepository<MatchInfoEntity, Long> {
 
-    @EntityGraph(attributePaths = {"teamList", "teamList.userList"})
+    @EntityGraph(attributePaths = {
+            "teamList",
+            "teamList.teamUsers",
+            "teamList.teamUsers.user"
+    })
     @Query("SELECT m FROM MatchInfoEntity m " +
-            "WHERE EXISTS (SELECT 1 FROM TeamEntity t JOIN t.userList u WHERE t.matchInfo = m AND u.id = :userId) AND m.endAt IS NOT NULL " +
+            "WHERE EXISTS (SELECT 1 FROM TeamEntity t JOIN t.teamUsers tu Join tu.user u WHERE t.matchInfo = m AND u.id = :userId) AND m.endAt IS NOT NULL " +
             "ORDER BY m.id DESC")
     Page<MatchInfoEntity> findByUserId(@Param("userId") Long userId, Pageable pageable);
 
@@ -22,5 +28,13 @@ public interface MatchInfoRepository extends JpaRepository<MatchInfoEntity, Long
             "WHERE m.region.id = :regionId AND m.endAt IS NOT NULL " +
             "ORDER BY m.id DESC")
     Page<MatchInfoEntity> findByRegionId(@Param("regionId") Long regionId, Pageable pageable);
+
+    @EntityGraph(attributePaths = {
+            "teamList",
+            "teamList.teamUsers",
+            "teamList.teamUsers.user"
+    })
+    @Query("SELECT m FROM MatchInfoEntity m WHERE m.id = :id")
+    Optional<MatchInfoEntity> findByIdWithTeamsAndUsers(@Param("id") Long id);
 
 }

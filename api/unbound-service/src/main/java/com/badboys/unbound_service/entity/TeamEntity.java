@@ -37,14 +37,9 @@ public class TeamEntity {
     @JoinColumn(name = "matchInfoId")
     private MatchInfoEntity matchInfo;
 
-    @ManyToMany
-    @JoinTable(
-            name = "team_user",
-            joinColumns = @JoinColumn(name = "teamId"),
-            inverseJoinColumns = @JoinColumn(name = "userId")
-    )
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private Set<UserEntity> userList = new HashSet<>();
+    private Set<TeamUserEntity> teamUsers = new HashSet<>();
 
     public void updateResult(int score, MatchResultType result) {
         this.score = score;

@@ -110,17 +110,40 @@ public class MatchService {
 
     public List<MatchInfoDto> getUserMatchInfoList(Long userId) {
 
-        Page<MatchInfoEntity> userMatchInfoEntityList = matchInfoRepository.findByUserId(userId, PageRequest.of(0, 5));
-        List<MatchInfoDto> userMatchInfoList = userMatchInfoEntityList.stream()
-                .map(this::convertToMatchInfoDto)
-                .peek(match -> {
-                    match.getTeamList().stream()
-                            .filter(team -> team.getUserList().stream().anyMatch(user -> user.getUserId().equals(userId)))
-                            .findFirst()
-                            .ifPresent(myTeam -> {
-                                match.getTeamList().remove(myTeam);
-                                match.getTeamList().add(0, myTeam);
-                            });
+        Page<MatchInfoEntity> page = matchInfoRepository.findByUserId(userId, PageRequest.of(0, 5));
+
+        List<MatchInfoDto> userMatchInfoList = page.stream()
+                .map(match -> {
+                    MatchInfoDto dto = convertToMatchInfoDto(match);
+
+                    int mmrChange = 0;
+                    Long myTeamId = null;
+
+                    for (TeamEntity team : match.getTeamList()) {
+                        for (TeamUserEntity tu : team.getTeamUsers()) {
+                            if (tu.getUser().getId().equals(userId)) {
+                                mmrChange = tu.getMmrChange();
+                                myTeamId = team.getId();
+                                break;
+                            }
+                        }
+                        if (myTeamId != null) break;
+                    }
+
+                    dto.setMmrChange(mmrChange);
+
+                    if (myTeamId != null) {
+                        List<TeamInfoDto> teams = dto.getTeamList();
+                        for (int i = 0; i < teams.size(); i++) {
+                            if (teams.get(i).getTeamId().equals(myTeamId)) {
+                                TeamInfoDto myTeam = teams.remove(i);
+                                teams.add(0, myTeam);
+                                break;
+                            }
+                        }
+                    }
+
+                    return dto;
                 })
                 .collect(Collectors.toList());
 
@@ -149,17 +172,27 @@ public class MatchService {
                 matchInfo.getLatitude(),
                 matchInfo.getLongitude(),
                 matchInfo.getLocation(),
+                0,
                 teamList
         );
     }
 
     private List<TeamInfoDto> convertToTeamInfoDto(Set<TeamEntity> teamEntities) {
-        return teamEntities.stream()
-                .map(team -> {
-                    List<UserSimpleDto> userList = userService.convertToUserSimpleDto(team.getUserList());
-                    return new TeamInfoDto(team.getId(), team.getResult(), userList);
-                })
-                .collect(Collectors.toList());
+        List<TeamInfoDto> result = new ArrayList<>();
+
+        for (TeamEntity team : teamEntities) {
+            Set<UserEntity> userSet = new LinkedHashSet<>();
+            for (TeamUserEntity tu : team.getTeamUsers()) {
+                userSet.add(tu.getUser());
+            }
+
+            List<UserSimpleDto> userList = userService.convertToUserSimpleDto(userSet);
+
+            TeamInfoDto dto = new TeamInfoDto(team.getId(), team.getResult(), userList);
+            result.add(dto);
+        }
+
+        return result;
     }
 
     public ResponseMatchInfoDto getMatchInfo(Long matchInfoId) {
@@ -250,16 +283,30 @@ public class MatchService {
         List<UserEntity> bTeamUsers = userRepository.findAllById(requestGameStartDto.getBTeamIdList());
 
         TeamEntity aTeam = TeamEntity.builder()
-                .userList(new HashSet<>(aTeamUsers))
                 .result(null)
                 .matchInfo(matchInfo)
                 .build();
 
         TeamEntity bTeam = TeamEntity.builder()
-                .userList(new HashSet<>(bTeamUsers))
                 .result(null)
                 .matchInfo(matchInfo)
                 .build();
+
+        for (UserEntity user : aTeamUsers) {
+            TeamUserEntity teamUser = TeamUserEntity.builder()
+                    .team(aTeam)
+                    .user(user)
+                    .build();
+            aTeam.getTeamUsers().add(teamUser);
+        }
+
+        for (UserEntity user : bTeamUsers) {
+            TeamUserEntity teamUser = TeamUserEntity.builder()
+                    .team(bTeam)
+                    .user(user)
+                    .build();
+            bTeam.getTeamUsers().add(teamUser);
+        }
 
         matchInfo.getTeamList().add(aTeam);
         matchInfo.getTeamList().add(bTeam);
@@ -276,7 +323,7 @@ public class MatchService {
     @Transactional
     public void endGame(RequestGameEndDto dto) {
 
-        MatchInfoEntity matchInfo = matchInfoRepository.findById(dto.getMatchInfoId())
+        MatchInfoEntity matchInfo = matchInfoRepository.findByIdWithTeamsAndUsers(dto.getMatchInfoId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매치입니다"));
 
         TeamEntity aTeam = teamRepository.findById(dto.getATeamResult().getTeamId())
@@ -294,25 +341,34 @@ public class MatchService {
     }
 
     private void updateMmrByResult(TeamEntity aTeam, TeamEntity bTeam) {
-        int aAvg = calcAverageMmr(aTeam.getUserList());
-        int bAvg = calcAverageMmr(bTeam.getUserList());
+        int aAvg = calcAverageMmr(aTeam);
+        int bAvg = calcAverageMmr(bTeam);
 
         double aScore = getActualScore(aTeam.getResult());
         double bScore = getActualScore(bTeam.getResult());
 
-        for (UserEntity user : aTeam.getUserList()) {
+        for (TeamUserEntity teamUser : aTeam.getTeamUsers()) {
+            UserEntity user = teamUser.getUser();
             int newMmr = MmrUtil.calculateNewRating(user.getMmr(), bAvg, aScore);
+            teamUser.updateMmrChange(newMmr - user.getMmr());
             user.updateMmr(newMmr);
+
         }
 
-        for (UserEntity user : bTeam.getUserList()) {
+        for (TeamUserEntity teamUser : bTeam.getTeamUsers()) {
+            UserEntity user = teamUser.getUser();
             int newMmr = MmrUtil.calculateNewRating(user.getMmr(), aAvg, bScore);
+            teamUser.updateMmrChange(newMmr - user.getMmr());
             user.updateMmr(newMmr);
         }
     }
 
-    private int calcAverageMmr(Set<UserEntity> users) {
-        return (int) users.stream().mapToInt(UserEntity::getMmr).average().orElse(1200);
+    private int calcAverageMmr(TeamEntity team) {
+        return (int) team.getTeamUsers().stream()
+                .map(TeamUserEntity::getUser)
+                .mapToInt(UserEntity::getMmr)
+                .average()
+                .orElse(1200);
     }
 
     private double getActualScore(MatchResultType result) {

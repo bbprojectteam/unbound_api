@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -58,9 +60,9 @@ public class UserEntity {
     @Builder.Default
     private List<CommentEntity> commentList = new ArrayList<>();
 
-    @BatchSize(size = 10)
-    @ManyToMany(mappedBy = "userList")
-    private List<TeamEntity> teamList;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<TeamUserEntity> teamUsers = new HashSet<>();
 
     @BatchSize(size = 10)
     @Builder.Default

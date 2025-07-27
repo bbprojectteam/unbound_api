@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -94,10 +94,14 @@ public class UserService {
         userRepository.save(userEntity);
     }
 
-    public List<UserSimpleDto> convertToUserSimpleDto(Set<UserEntity> userEntities) {
-        return userEntities.stream()
-                .map(user -> new UserSimpleDto(user.getId(), user.getUsername(), user.getProfileImage(), user.getMmr(), user.getIntroduction()))
-                .collect(Collectors.toList());
+    public List<UserSimpleDto> convertToUserSimpleDto(Set<UserEntity> users) {
+
+        List<UserSimpleDto> userSimpleDtoList = new ArrayList<>();
+        for (UserEntity user : users) {
+            UserSimpleDto userSimpleDto = new UserSimpleDto(user.getId(), user.getUsername(), user.getProfileImage(), user.getMmr(), user.getIntroduction());
+            userSimpleDtoList.add(userSimpleDto);
+        }
+        return userSimpleDtoList;
     }
 
     public List<UserSimpleDto> getUsersToInvite(Long chatRoomId, List<Long> regionChildren) {
