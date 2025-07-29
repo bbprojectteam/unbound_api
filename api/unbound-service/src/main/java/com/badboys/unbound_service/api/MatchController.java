@@ -52,7 +52,7 @@ public class MatchController {
         boolean isSuccess = matchService.startMatch(Long.valueOf(userId), requestMatchStartDto.getLimitRegionId());
 
         // 테스트용 임시로직
-        for (int i = 1; i <= 5; i ++) {
+        for (int i = 1; i <= 4; i ++) {
             matchService.startMatch(Long.valueOf(i), requestMatchStartDto.getLimitRegionId());
         }
 
