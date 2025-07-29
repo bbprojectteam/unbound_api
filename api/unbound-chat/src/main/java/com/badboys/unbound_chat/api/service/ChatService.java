@@ -119,7 +119,9 @@ public class ChatService {
         Set<Long> userIds = new HashSet<>();
 
         for (ChatMemberEntity chatMemberEntity : chatMemberEntityList) {
-            userIds.add(chatMemberEntity.getUser().getId());
+            if (!chatMemberEntity.getUser().getId().equals(chatMessage.getSenderId())) {
+                userIds.add(chatMemberEntity.getUser().getId());
+            }
         }
 
         String body = chatMessage.getImageUrl() != null
@@ -140,7 +142,7 @@ public class ChatService {
 
         try {
             // fcm 채팅알림
-            fcmService.sendNotifications(userIds, chatRoomEntity.getName(), body,
+            fcmService.sendNotifications(userIds, "채팅이 왔습니다.", body,
                     Map.of("chatRoomId", chatRoomEntity.getId().toString(), "createdAt", LocalDateTime.now().toString()));
 
             log.info("fcm 알림 전송 완료: {}", chatMessage);
